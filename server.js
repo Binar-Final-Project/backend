@@ -3,6 +3,8 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 
+app.set('view engine', 'ejs')
+
 app.use(morgan('dev'))
 
 const routes = require('./routes/index')
