@@ -1,0 +1,56 @@
+### register
+POST : http://localhost:3000/api/v1/users/register
+{
+  "name": "Putri",
+  "password": "putriNisaR",
+  "email": "putrinisarengganis@gmail.com",
+  "phone_number": "081220160614"
+}
+
+### verify
+POST :http://localhost:3000/api/v1/users/verification-otp
+{
+  "email": "putrinisarengganis@gmail.com",
+  "otp": "OTP yang dikirim di email" 
+}
+
+### login
+POST : http://localhost:3000/api/v1/users/login
+{
+  "email": "putrinisarengganis@gmail.com",
+  "password": "putriNisaR"
+}
+
+### forgot-password
+POST : http://localhost:3000/api/v1/users/forgot-password
+{
+  "email": "putrinisarengganis@gmail.com"
+}
+
+###change-password
+POST : http://localhost:3000/api/v1/users/reset-password
+{
+    "token" : " ",
+    "email": " putrinisarengganis@gmail.com",
+    "password" : "putriNisaR"
+}
+
+### update-password
+POST : http://localhost:3000/api/v1/users/update-password
+{
+  "newPassword": "putrinr",
+  "oldPassword": "putriNisaR"
+}
+
+### update-profil
+POST : http://localhost:3000/api/v1/users/update-profil
+{
+  "name": "putrinr",
+  "phone_number": "0895414"
+}
+
+### get profile
+
+GET :  http://localhost:3000/api/v1/users/me
+
+(salin token saat, buka auth ke bearer, paste token)
