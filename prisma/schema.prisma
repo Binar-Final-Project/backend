@@ -12,3 +12,164 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//enumeration for transactions
+enum transaction_status {
+  UNPAID
+  CANCELLED
+  ISSUED
+}
+
+model users {
+  user_id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  phone_number String @unique
+  password String
+  is_verified Boolean
+  otp_number String
+
+  //relationship
+  notifications notifications[]
+  transactions transactions[]
+}
+
+model notifications {
+  notification_id Int @id @default(autoincrement())
+  title String
+  description String
+  status String
+  created_at DateTime @default(now())
+
+  //relationship
+  user_id Int
+  user users @relation(fields: [user_id], references: [user_id])
+}
+
+model transactions {
+  transaction_id Int @id @default(autoincrement())
+  total_price Int
+  tax Int
+  payment_method String
+  booking_code String @unique
+  status transaction_status
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  //relationship
+  user_id Int
+  user users @relation(fields: [user_id], references: [user_id])
+}
+
+model tickets {
+  ticket_id Int @id @default(autoincrement())
+  total_adult Int
+  total_children Int
+  total_baby Int
+
+  //relationship
+  boarding_pass boarding_pass[]
+  flight_id Int
+  flight flights @relation(fields: [flight_id], references: [flight_id])
+}
+
+model orderers {
+  orderer_id Int @id @default(autoincrement())
+  name String
+  family_name String
+  phone_number String
+  email String
+
+  passengers passengers[]
+}
+
+model passengers {
+  passenger_id Int @id @default(autoincrement())
+  name String
+  email String
+  passenger_type String
+  phone_number String
+  date_of_birth DateTime @db.Date //example input (YYYY-MM-DD) "2024-05-21"
+  nationality String
+  identity_number String
+  issuing_country String
+  valid_until DateTime @db.Date //example input (YYYY-MM-DD) "2024-05-21"
+
+  //relationship
+  orderer_id Int
+  orderer orderers @relation(fields: [orderer_id], references: [orderer_id])
+  boarding_pass boarding_pass?
+}
+
+//pivot table ticket and passenger
+model boarding_pass {
+  boarding_pass_id Int @id @default(autoincrement())
+
+  //relationship
+  passenger_id Int @unique
+  passenger passengers @relation(fields: [passenger_id], references: [passenger_id])
+  ticket_id Int
+  ticket tickets @relation(fields: [ticket_id], references: [ticket_id])
+}
+
+model flights {
+  flight_id Int @id @default(autoincrement())
+  flight_number String @unique
+  flight_date DateTime @db.Date
+  departure_time DateTime @db.Time() //example input "14:30"
+  arrival_time DateTime @db.Time() //example input "15:30"
+  departure_terminal String
+  arrival_terminal String
+  class String
+  price Int
+  duration Int
+  capacity Int
+  free_baggage String
+  cabin_baggage String
+  entertainment Boolean
+
+  //relationship
+  tickets tickets[]
+  airplane_id Int
+  airplane airplanes @relation(fields: [airplane_id], references: [airplane_id])
+  departure_airport_id Int
+  departure_airport airports @relation("departure", fields: [departure_airport_id], references: [airport_id])
+  arrival_airport_id Int
+  arrival_airport airports @relation("arrival", fields: [arrival_airport_id], references: [airport_id])
+}
+
+//Lookup tables
+model airports {
+  airport_id Int @id @default(autoincrement())
+  name String
+  city String
+  country String
+  code String @unique
+
+  //relationship
+  departure flights[] @relation("departure")
+  arrival flights[] @relation("arrival")
+}
+
+model airlines {
+  airline_id Int @id @default(autoincrement())
+  name String
+  short_name String
+  iconUrl String
+
+  //relationship
+  airplanes airplanes[]
+}
+
+model airplanes {
+  airplane_id Int @id @default(autoincrement())
+  model String
+
+  //relationship
+  airline_id Int
+  airline airlines @relation(fields: [airline_id], references: [airline_id])
+  flight flights[]
+}
+
+
+
