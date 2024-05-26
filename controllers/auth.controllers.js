@@ -7,13 +7,13 @@ const { sendMail, getHTML } = require('../libs/mailer');
 const { JWT_SECRET, TOKEN_SECRET, FORGOT_PASSWORD_URL } = process.env;
 
 const generateOTP = () => {
-    const otp= Math.floor(100000 + Math.random() * 900000);
-    const chipperOtp = crypto.AES.encrypt(otp.toString(), TOKEN_SECRET).toString();
-    return { otp, chipperOtp };
+    const otp_number= Math.floor(100000 + Math.random() * 900000);
+    const chipperOtp = crypto.AES.encrypt(otp_number.toString(), TOKEN_SECRET).toString();
+    return { otp_number, chipperOtp };
 }
 
-const sendMailOTP = async (email, otp) => {
-    const html = await getHTML('verification-email.ejs', { code: otp });
+const sendMailOTP = async (email, otp_number) => {
+    const html = await getHTML('verification-email.ejs', { code: otp_number });
     await sendMail(email, 'verify email', html);
 }
 
@@ -21,28 +21,24 @@ const register = async (req, res, next) => {
     try {
         const { name, password, email, phone_number } = req.body;
         const hashedPassword = crypto.SHA256(password).toString();
-        const otp = generateOTP();
+        const otp_number = generateOTP();
         
-        //otp expired in 5 minutes using  ISO-8601 DateTime string
-        const expired = new Date(new Date().getTime() + 5 * 60000).toISOString();
-
-        const user = await prisma.user.create({
+        const users = await prisma.users.create({
             data: {
                 name,
                 password: hashedPassword,
                 email: email,
-                otp: otp.chipperOtp,
-                otpExpiry: expired,
+                otp_number: otp_number.chipperOtp,
                 phone_number: phone_number
             }
         });
 
-        await sendMailOTP(email, otp.otp);
-
+        await sendMailOTP(email, otp_number.otp_number);
+        delete users.otp_number;
         res.json({
             status: true,
             message: 'User registered!',
-            data: user
+            data: users
         });
     } catch (error) {
 
@@ -59,61 +55,40 @@ const register = async (req, res, next) => {
 
 const verify = async (req, res, next) => {
     try {
-        const { email, otp } = req.body;
-        const user = await prisma.user.findUnique({
+        const { email, otp_number } = req.body;
+        const users = await prisma.users.findUnique({
             where: {
                 email
             }
         });
 
-        if (!user) {
+        if (!users) {
             return res.status(400).json({
                 status: false,
                 message: 'User not found'
             });
         }
 
-        if (new Date(user.otpExpiry) < new Date()) {
-            const newOtp = generateOTP();
-            await prisma.user.update({
-                where: {
-                    email
-                },
-                data: {
-                    otp: newOtp.chipperOtp,
-                    otpExpiry: new Date(new Date().getTime() + 5 * 60000).toISOString()
-                }
-            });
-
-            await sendMailOTP(email, newOtp.otp);
-
-            return res.status(400).json({
-                status: false,
-                message: 'OTP expired, new OTP will be sent to your email'
-            });
-        }
-
-        const decryptedOtp = crypto.AES.decrypt(user.otp, TOKEN_SECRET).toString(crypto.enc.Utf8);
+        const decryptedOtp = crypto.AES.decrypt(users.otp_number, TOKEN_SECRET).toString(crypto.enc.Utf8);
         
-        if (decryptedOtp !== otp || decryptedOtp !== otp.toString()) {
+        if (decryptedOtp !== otp_number || decryptedOtp !== otp_number.toString()) {
             return res.status(400).json({
                 status: false,
                 message: 'Invalid OTP'
             });
         }
 
-        await prisma.user.update({
+        await prisma.users.update({
             where:{
                 email
             },
             data:{
-                verified:true,
-                otp:null,
-                otpExpiry:null
+                is_verified:true,
+                otp_number:null,
             }
         });
 
-        const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: users.id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -131,13 +106,13 @@ const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         
-        const user = await prisma.user.findUnique({
+        const users = await prisma.users.findUnique({
             where: {
                 email
             }
         });
 
-        if (!user) {
+        if (!users) {
             return res.status(400).json({
                 status: false,
                 message: 'User not found'
@@ -146,14 +121,14 @@ const login = async (req, res, next) => {
 
         const hashedPassword = crypto.SHA256(password).toString();
 
-        if (user.password !== hashedPassword) {
+        if (users.password !== hashedPassword) {
             return res.status(400).json({
                 status: false,
                 message: 'Invalid password'
             });
         }
 
-        const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: users.id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -172,13 +147,13 @@ const login = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
-        const user = await prisma.user.findUnique({
+        const users = await prisma.users.findUnique({
             where: {
                 email
             }
         });
 
-        if (!user || !user.verified) {
+        if (!users || !users.verified) {
             return res.status(400).json({
                 status: false,
                 message: 'User not found or not verified'
@@ -186,8 +161,8 @@ const forgotPassword = async (req, res, next) => {
         }
 
         //create a unique string for reset password its was a email user and id encrypted with some secret key
-        const resetPasswordToken = crypto.AES.encrypt(`${user.email}[|]${user.id}`, `${TOKEN_SECRET}`).toString();
-        const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}&email=${user.email}`
+        const resetPasswordToken = crypto.AES.encrypt(`${users.email}[|]${users.id}`, `${TOKEN_SECRET}`).toString();
+        const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}&email=${users.email}`
         
         const html = await getHTML('forgot-password.ejs', { link });
         await sendMail(email, 'Reset Password', html);
@@ -228,7 +203,7 @@ const changePassword = async (req, res, next) => {
         }
 
         const hashedPassword = crypto.SHA256(password).toString();
-        await prisma.user.update({
+        await prisma.users.update({
             where: {
                 email
             },
@@ -249,8 +224,8 @@ const changePassword = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
     try {
         const { name, phone_number } = req.body;
-        const { id } = req.user;
-        await prisma.user.update({
+        const { id } = req.users;
+        await prisma.users.update({
             where: {
                 id
             },
@@ -271,16 +246,16 @@ const updateProfile = async (req, res, next) => {
 
 const updatePassword = async(req, res, next) =>{
     const { oldPassword, newPassword } =  req.body;
-    const { id } = req.user;
+    const { id } = req.users
 
     try {
-        const user = await prisma.user.findUnique({
+        const users = await prisma.users.findUnique({
             where: {
                 id
             }
         });
 
-        if (!user) {
+        if (!users) {
             return res.status(400).json({
                 status: false,
                 message: 'User not found'
@@ -289,7 +264,7 @@ const updatePassword = async(req, res, next) =>{
 
         const hashedOldPassword = crypto.SHA256(oldPassword).toString();
 
-        if (user.password !== hashedOldPassword) {
+        if (users.password !== hashedOldPassword) {
             return res.status(400).json({
                 status: false,
                 message: 'Invalid old password'
@@ -298,7 +273,7 @@ const updatePassword = async(req, res, next) =>{
 
         const hashedNewPassword = crypto.SHA256(newPassword).toString();
 
-        await prisma.user.update({
+        await prisma.users.update({
             where: {
                 id
             },
@@ -320,7 +295,7 @@ const updatePassword = async(req, res, next) =>{
 const getProfile = async (req, res, next) => {
     try {
         const { id } = req.user;
-        const user = await prisma.user.findUnique({
+        const users = await prisma.users.findUnique({
             where: {
                 id
             },
@@ -333,7 +308,7 @@ const getProfile = async (req, res, next) => {
 
         res.json({
             status: true,
-            data: user
+            data: users
         });
     } catch (error) {
         next(error);

@@ -13,15 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String    @id @default(cuid())
+model users {
+  id           String   @id @default(cuid())
   name         String?
-  email        String    @unique
-  phone_number String    @unique
+  email        String   @unique
+  phone_number String   @unique
   password     String
-  otp          String?
-  otpExpiry    DateTime?
-  verified     Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  otp_number   String?
+  is_verified  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
