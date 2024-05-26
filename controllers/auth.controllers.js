@@ -153,7 +153,7 @@ const forgotPassword = async (req, res, next) => {
             }
         });
 
-        if (!users || !users.verified) {
+        if (!users || !users.is_verified) {
             return res.status(400).json({
                 status: false,
                 message: 'User not found or not verified'
@@ -224,7 +224,7 @@ const changePassword = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
     try {
         const { name, phone_number } = req.body;
-        const { id } = req.users;
+        const { id } = req.user;
         await prisma.users.update({
             where: {
                 id
@@ -246,7 +246,9 @@ const updateProfile = async (req, res, next) => {
 
 const updatePassword = async(req, res, next) =>{
     const { oldPassword, newPassword } =  req.body;
-    const { id } = req.users
+    const { id } = req.user
+
+
 
     try {
         const users = await prisma.users.findUnique({
