@@ -2,7 +2,7 @@
 
 #### 1. Clone repository
 ```bash
-git clone 
+git clone https://github.com/Binar-Final-Project/backend.git
 ```
 
 #### 2. Install dependencies
