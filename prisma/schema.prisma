@@ -32,6 +32,7 @@ model users {
   //relationship
   notifications notifications[]
   transactions transactions[]
+  orderer orderers?
 }
 
 model notifications {
@@ -59,6 +60,8 @@ model transactions {
   //relationship
   user_id Int
   user users @relation(fields: [user_id], references: [user_id])
+  ticket_id Int @unique //1-1
+  ticket tickets @relation(fields: [ticket_id], references: [ticket_id])
 }
 
 model tickets {
@@ -68,9 +71,10 @@ model tickets {
   total_baby Int
 
   //relationship
-  boarding_pass boarding_pass[]
   flight_id Int
   flight flights @relation(fields: [flight_id], references: [flight_id])
+  passengers passengers[]
+  transaction transactions? //1-1
 }
 
 model orderers {
@@ -80,7 +84,10 @@ model orderers {
   phone_number String
   email String
 
+  //relationship
   passengers passengers[]
+  user_id Int @unique
+  user users @relation(fields: [user_id], references: [user_id])
 }
 
 model passengers {
@@ -98,20 +105,9 @@ model passengers {
   //relationship
   orderer_id Int
   orderer orderers @relation(fields: [orderer_id], references: [orderer_id])
-  boarding_pass boarding_pass?
-}
-
-//pivot table ticket and passenger
-model boarding_pass {
-  boarding_pass_id Int @id @default(autoincrement())
-
-  //relationship
-  passenger_id Int @unique
-  passenger passengers @relation(fields: [passenger_id], references: [passenger_id])
   ticket_id Int
   ticket tickets @relation(fields: [ticket_id], references: [ticket_id])
 }
-
 model flights {
   flight_id Int @id @default(autoincrement())
   flight_number String @unique
