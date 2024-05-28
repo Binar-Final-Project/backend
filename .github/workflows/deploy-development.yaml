@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: development
 
     steps:
       - name: Checkout
@@ -25,9 +26,10 @@ jobs:
       
       - name: Run Migration
         run: |
-          export DATABASE_URL=${{ secrets.DATABASE_URL }}
           npx prisma migrate deploy
           npx prisma db seed
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           
       - name: Deploy to railway
         run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
