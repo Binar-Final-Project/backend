@@ -132,7 +132,7 @@ const login = async (req, res, next) => {
                 message: 'All fields are required!',
             });
         }
-        co
+        
         const users = await prisma.users.findUnique({
             where: {
                 email
