@@ -29,7 +29,14 @@ const register = async (req, res, next) => {
                 password: hashedPassword,
                 email: email,
                 otp_number: otp_number.chipperOtp,
-                phone_number: phone_number
+                phone_number: phone_number,
+                notifications: {
+                    create: {
+                        title: 'Registration Success',
+                        description: 'Congratulations, your account has been successfully created!',
+                        status: 'unread'
+                    }
+                }
             }
         });
 
@@ -45,7 +52,7 @@ const register = async (req, res, next) => {
         if (error.code === 'P2002') {
             return res.status(400).json({
                 status: false,
-                message: 'Email or phone number already exists'
+                message: 'Email or phone number already exists',
             });
         }
 
@@ -85,6 +92,12 @@ const verify = async (req, res, next) => {
             data:{
                 is_verified:true,
                 otp_number:null,
+                notifications: {
+                    create: {
+                        title: 'Verification Success',
+                        description: 'Your account has successfully verified!'
+                    }
+                }
             }
         });
 
@@ -162,7 +175,7 @@ const forgotPassword = async (req, res, next) => {
 
         //create a unique string for reset password its was a email user and id encrypted with some secret key
         const resetPasswordToken = crypto.AES.encrypt(`${users.email}[|]${users.user_id}`, `${TOKEN_SECRET}`).toString();
-        const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}&email=${users.email}`
+        const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}`
         
         const html = await getHTML('forgot-password.ejs', { link });
         await sendMail(email, 'Reset Password', html);
@@ -177,21 +190,16 @@ const forgotPassword = async (req, res, next) => {
 
 const changePassword = async (req, res, next) => {
     try {
-        const { email, password, token } = req.body;
+        const { password, token } = req.body;
         const decryptToken = crypto.AES.decrypt(token, TOKEN_SECRET).toString(crypto.enc.Utf8);
         const data = decryptToken.split('[|]');
+
+        const email = data[0]
 
         if (data.length !== 2) {
             return res.status(400).json({
                 status: false,
                 message: 'Invalid token'
-            });
-        }
-
-        if (data[0] !== email) {
-            return res.status(400).json({
-                status: false,
-                message: 'Invalid email'
             });
         }
 

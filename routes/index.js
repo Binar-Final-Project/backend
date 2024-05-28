@@ -6,6 +6,9 @@ const docs = require('../docs/v1.json')
 // const ticketRoutes = require('./ticket.routes')
 // Router.use('/tickets', ticketRoutes)
 
+const authRoutes = require('./auth')
+Router.use('/users', authRoutes)
+
 Router.get('/', (req,res) => {
     res.status(200).json({
         status: true,
