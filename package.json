@@ -28,6 +28,7 @@
     "nodemailer": "^6.9.13"
   },
   "prisma": {
-    "migrateOutput": "prisma/migrations"
+    "migrateOutput": "prisma/migrations",
+    "seed": "node prisma/seeds.js"
   }
 }
