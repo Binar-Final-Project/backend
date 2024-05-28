@@ -1,0 +1,17 @@
+{
+  "Airbus A320": { "TransNusa": 1, "Batik Air": 7, "Citilink": 19 },
+  "COMAC ARJ21": { "TransNusa": 2 },
+  "Airbus A332": { "Garuda Indonesia": 3 },
+  "Boeing 737": {
+    "Garuda Indonesia": 4,
+    "Batik Air": 8,
+    "Trigana Air": 10,
+    "Lion Air": 13,
+    "NAM Air": 15,
+    "Sriwijaya Air": 20
+  },
+  "Boeing 737 Next Generation": { "Garuda Indonesia": 5, "Batik Air": 9 },
+  "Bombardier CRJ1000": { "Garuda Indonesia": 6 },
+  "ATR 72": { "Wings Air": 11, "Citilink": 17 },
+  "Boeing 737 MAX": { "Lion Air": 14 }
+}
