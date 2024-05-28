@@ -3,9 +3,14 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 const morgan = require('morgan')
+const cors = require('cors')
 
 app.set('view engine', 'ejs')
 
+app.use(cors({
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200
+}))
 app.use(morgan('dev'))
 
 const routes = require('./routes/index')
