@@ -41,7 +41,10 @@ const register = async (req, res, next) => {
         });
 
         await sendMailOTP(email, otp_number.otp_number);
-        delete users.otp_number;
+        delete users.otp_number
+        delete users.password
+        delete users.created_at 
+        delete users.updated_at
         res.json({
             status: true,
             message: 'User registered!',
@@ -95,7 +98,8 @@ const verify = async (req, res, next) => {
                 notifications: {
                     create: {
                         title: 'Verification Success',
-                        description: 'Your account has successfully verified!'
+                        description: 'Your account has successfully verified!',
+                        status: 'unread'
                     }
                 }
             }
@@ -179,7 +183,8 @@ const forgotPassword = async (req, res, next) => {
         await sendMail(email, 'Reset Password', html);
         return res.json({
             status: true,
-            message: 'Reset password link sent to your email'
+            message: 'Reset password link sent to your email',
+            data: null
         });
     } catch (error) {
         next(error);
@@ -188,7 +193,7 @@ const forgotPassword = async (req, res, next) => {
 
 const changePassword = async (req, res, next) => {
     try {
-        const { password, token } = req.body;
+        const { password1, password2, token } = req.body;
         const decryptToken = crypto.AES.decrypt(token, TOKEN_SECRET).toString(crypto.enc.Utf8);
         const data = decryptToken.split('[|]');
 
@@ -197,18 +202,28 @@ const changePassword = async (req, res, next) => {
         if (data.length !== 2) {
             return res.status(400).json({
                 status: false,
-                message: 'Invalid token'
+                message: 'Invalid token',
+                data: null
             });
         }
 
-        if(!password || password.length < 1){
+        if(!password1 || password1.length < 1){
             return res.status(400).json({
                 status: false,
-                message: 'Password must be at least 1 characters'
+                message: 'Password must be at least 1 characters',
+                data: null
             });
         }
 
-        const hashedPassword = crypto.SHA256(password).toString();
+        if(password1 !== password2){
+            return res.status(400).json({
+                status: false,
+                message: 'Password do not match',
+                data: null
+            });
+        }
+
+        const hashedPassword = crypto.SHA256(password1).toString();
         await prisma.users.update({
             where: {
                 email
@@ -220,7 +235,8 @@ const changePassword = async (req, res, next) => {
 
         res.json({
             status: true,
-            message: 'Password changed successfully'
+            message: 'Password changed successfully',
+            data: null
         });
     }catch(error){
         next(error)
