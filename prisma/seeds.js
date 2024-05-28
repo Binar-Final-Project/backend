@@ -71,13 +71,23 @@ async function seedAirports(){
     })
 }
 
+const schedule = require('./data/scheduleBased.json')
+async function seedSchedules(){
+    await prisma.flights.createMany({
+        data: schedule,
+        skipDuplicates: true
+    })
+}
+
 async function main(){
     try {
-        await seedAirlines()
+        // await seedAirlines()
 
-        await seedAirplanes()
+        // await seedAirplanes()
 
-        await seedAirports()
+        // await seedAirports()
+
+        await seedSchedules()
     } catch (err) {
         throw err
     }
