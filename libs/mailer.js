@@ -1,11 +1,11 @@
 const mailer = require('nodemailer');
-const { GOOGLE_SENDER_EMAIL, GOOGLE_SENDER_PASSWORD, GOOGLE_USERNAME } = process.env;
+const { GOOGLE_SENDER_EMAIL, GOOGLE_SENDER_PASSWORD } = process.env;
 let ejs = require('ejs');
 
 const transporter = mailer.createTransport({
     service: 'gmail',
     auth: {
-        user: GOOGLE_USERNAME,
+        user: GOOGLE_SENDER_EMAIL,
         pass: GOOGLE_SENDER_PASSWORD
     }
 });
