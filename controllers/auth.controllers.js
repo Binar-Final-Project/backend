@@ -365,4 +365,18 @@ const getProfile = async (req, res, next) => {
     }
 }
 
-module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile};
+const deleteAllUsers = async (req,res, next) => {
+    try {
+        await prisma.notifications.deleteMany()
+        await prisma.users.deleteMany()
+
+        res.status(200).json({
+            status: true,
+            message: 'Users deleted'
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers};
