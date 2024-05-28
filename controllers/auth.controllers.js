@@ -20,6 +20,12 @@ const sendMailOTP = async (email, otp_number) => {
 const register = async (req, res, next) => {
     try {
         const { name, password, email, phone_number } = req.body;
+        if(!name || !password || !email || !phone_number){
+            return res.status(400).json({
+                status: false,
+                message: 'All fields are required!',
+            });
+        }
         const hashedPassword = crypto.SHA256(password).toString();
         const otp_number = generateOTP();
         
@@ -45,7 +51,7 @@ const register = async (req, res, next) => {
         delete users.password
         delete users.created_at 
         delete users.updated_at
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'User registered!',
             data: users
@@ -120,7 +126,13 @@ const verify = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        
+        if(!password || !email ){
+            return res.status(400).json({
+                status: false,
+                message: 'All fields are required!',
+            });
+        }
+        co
         const users = await prisma.users.findUnique({
             where: {
                 email
@@ -162,6 +174,13 @@ const login = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
+        if(!email){
+            return res.status(400).json({
+                status: false,
+                message: 'Email not sent',
+            });
+        }
+        co
         const users = await prisma.users.findUnique({
             where: {
                 email
@@ -194,6 +213,13 @@ const forgotPassword = async (req, res, next) => {
 const changePassword = async (req, res, next) => {
     try {
         const { password1, password2, token } = req.body;
+        if(!password1 || !password2 || !token){
+            return res.status(400).json({
+                status: false,
+                message: 'Password or token not sent',
+            });
+        }
+        co
         const decryptToken = crypto.AES.decrypt(token, TOKEN_SECRET).toString(crypto.enc.Utf8);
         const data = decryptToken.split('[|]');
 
