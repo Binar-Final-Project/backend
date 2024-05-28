@@ -34,7 +34,16 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/user"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/user"
+                  }
+                ],
+                "properties": {
+                  "password": {
+                    "example": "john123"
+                  }
+                }
               }
             }
           },
