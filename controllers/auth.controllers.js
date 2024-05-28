@@ -85,7 +85,7 @@ const verify = async (req, res, next) => {
             });
         }
 
-        await prisma.users.update({
+        const result = await prisma.users.update({
             where:{
                 email
             },
@@ -101,13 +101,11 @@ const verify = async (req, res, next) => {
             }
         });
 
-        const token = jwt.sign({ id: users.user_id }, JWT_SECRET, { expiresIn: '1h' });
-
         res.json({
             status: true,
             message: 'User verified!',
             data: {
-                token
+                is_verified: result.is_verified
             }
         });
     } catch (error) {
