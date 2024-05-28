@@ -88,7 +88,7 @@ const verify = async (req, res, next) => {
             }
         });
 
-        const token = jwt.sign({ id: users.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: users.user_id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -128,7 +128,7 @@ const login = async (req, res, next) => {
             });
         }
 
-        const token = jwt.sign({ id: users.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: users.user_id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -161,7 +161,7 @@ const forgotPassword = async (req, res, next) => {
         }
 
         //create a unique string for reset password its was a email user and id encrypted with some secret key
-        const resetPasswordToken = crypto.AES.encrypt(`${users.email}[|]${users.id}`, `${TOKEN_SECRET}`).toString();
+        const resetPasswordToken = crypto.AES.encrypt(`${users.email}[|]${users.user_id}`, `${TOKEN_SECRET}`).toString();
         const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}&email=${users.email}`
         
         const html = await getHTML('forgot-password.ejs', { link });
@@ -227,7 +227,7 @@ const updateProfile = async (req, res, next) => {
         const { id } = req.user;
         await prisma.users.update({
             where: {
-                id
+                user_id: id
             },
             data: {
                 name,
@@ -253,7 +253,7 @@ const updatePassword = async(req, res, next) =>{
     try {
         const users = await prisma.users.findUnique({
             where: {
-                id
+                user_id: id
             }
         });
 
@@ -277,7 +277,7 @@ const updatePassword = async(req, res, next) =>{
 
         await prisma.users.update({
             where: {
-                id
+                user_id: id
             },
             data: {
                 password: hashedNewPassword
@@ -299,7 +299,7 @@ const getProfile = async (req, res, next) => {
         const { id } = req.user;
         const users = await prisma.users.findUnique({
             where: {
-                id
+                user_id: id
             },
             select: {
                 name: true,
