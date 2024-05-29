@@ -180,7 +180,7 @@ const forgotPassword = async (req, res, next) => {
                 message: 'Email not sent',
             });
         }
-        co
+        
         const users = await prisma.users.findUnique({
             where: {
                 email
