@@ -4,7 +4,7 @@
     "arrival_airport_id": 22,
     "airplane_id": 7,
     "flight_number": "ID-6182",
-    "flight_date": "T00:00:00Z2024-06-02",
+    "flight_date": "2024-06-02T00:00:00Z",
     "departure_terminal": "Terminal 2D",
     "arrival_terminal": "Terminal Domestic",
     "free_baggage": "20",

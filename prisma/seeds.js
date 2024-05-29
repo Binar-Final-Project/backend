@@ -73,7 +73,7 @@ async function seedAirports(){
 const schedule = require('./data/scheduleBased.json')
 async function seedSchedules(){
     await prisma.flights.createMany({
-        data: schedule,
+        data: schedule
     })
 }
 

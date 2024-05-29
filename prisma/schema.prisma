@@ -113,7 +113,7 @@ model passengers {
 model flights {
   flight_id Int @id @default(autoincrement())
   flight_number String
-  flight_date DateTime @db.Date
+  flight_date String
   departure_time String //example input "14:30"
   arrival_time String //example input "15:30"
   departure_terminal String
