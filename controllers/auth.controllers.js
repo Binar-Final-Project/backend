@@ -379,4 +379,45 @@ const deleteAllUsers = async (req,res, next) => {
     }
 }
 
-module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers};
+const resendOTP = async (req,res,next) => {
+    try {
+        const {email} = req.body
+        if(!email){
+            return res.status(400).json({
+                status: false,
+                message: 'Email not sent',
+                data: null
+            })
+        }
+
+        const {otp_number, chipperOtp} = generateOTP()
+        const updated = await prisma.users.update({
+            data: {
+                otp_number: chipperOtp
+            },
+            where: {
+                email
+            }
+        })
+
+        if(!updated){
+            return res.status(400).json({
+                status: false,
+                message: 'failed to updated',
+                data: null
+            })
+        }
+
+        await sendMailOTP(email, otp_number)
+
+        return res.status(200).json({
+            status: true,
+            message: 'OTP UPDATED!',
+            data: null
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};

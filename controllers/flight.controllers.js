@@ -1,6 +1,12 @@
 const { PrismaClient, Prisma } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const addOneDay = (dateString) => {
+  const date = new Date(dateString);
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split('T')[0];
+};
+
 module.exports = {
   search: async (req, res, next) => {
     try {
@@ -24,7 +30,9 @@ module.exports = {
         SELECT
           f.*,
           d_airport.code as dept_code,
+          d_airport.name as dept_name,
           a_airport.code as arr_code,
+          a_airport.name as arr_name,
           airplane.*,
           airline.*
         FROM
@@ -52,12 +60,17 @@ module.exports = {
         let sClass = s.class.toLowerCase()
         sClass = sClass.charAt(0).toUpperCase() + sClass.slice(1);
         
-        let date = new Date(s.flight_date).toISOString()
-        date = date.split('T')[0]
+        let date = new Date(s.flight_date).toISOString().split('T')[0]
+
+        let arrivalDate = date
+        if(s.departure_time > s.arrival_time){
+          arrivalDate = addOneDay(date)
+        }
 
         return ({
             flight_id: s.flight_id,
             flight_date: date,
+            arrival_date: arrivalDate,
             departure_time: s.departure_time,
             arrival_time: s.arrival_time,
             duration: s.duration,
@@ -67,14 +80,15 @@ module.exports = {
             departure_code: s.dept_code,
             arrival_code: s.arr_code,
             baggage: isFree,
-            airline_icon_url: s.iconUrl
+            airline_icon_url: s.iconUrl,
         })
       })
 
+      console.log(result[1].arrival_time < result[1].departure_time)
       res.status(200).json({
         status: true,
         message: "OK",
-        data: mapped,
+        data: result,
       });
     } catch (err) {
       next(err);
