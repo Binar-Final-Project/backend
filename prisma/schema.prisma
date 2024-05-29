@@ -168,6 +168,3 @@ model airplanes {
   airline airlines @relation(fields: [airline_id], references: [airline_id])
   flight flights[]
 }
-
-
-
