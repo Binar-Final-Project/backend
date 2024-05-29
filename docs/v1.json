@@ -523,7 +523,15 @@
             "schema": {
               "type": "string"
             },
-            "description": "optional"
+            "description": "(price/departure_time/arrival_time/duration) - default price"
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": {
+              "type": "string"
+            },
+            "description": "(asc/desc) - default asc"
           }
         ],
         "requestBody": {
@@ -539,10 +547,10 @@
                     "example": "DPS"
                   },
                   "departure_date": {
-                    "example": "2024-04-12T00:00:00.000Z"
+                    "example": "2024-04-12"
                   },
                   "return_date": {
-                    "example": "2024-04-15T00:00:00.000Z"
+                    "example": "2024-04-15"
                   },
                   "seat_class": {
                     "example": "economy"
@@ -848,7 +856,7 @@
             "example": 1
           },
           "flight_date": {
-            "example": "2024-06-06T00:00:00.000Z"
+            "example": "2024-06-06"
           },
           "departure_time": {
             "example": "08:30"
@@ -877,6 +885,9 @@
           "baggage": {
             "example": true,
             "description": "Buat backend dicek aja value dari baggagenya kl >0 return true"
+          },
+          "airline_icon_url": {
+            "example": "www.imagekit."
           }
         }
       },
