@@ -73,13 +73,16 @@ module.exports = {
             arrival_date: arrivalDate,
             departure_time: s.departure_time,
             arrival_time: s.arrival_time,
-            duration: s.duration,
-            price: s.price,
-            airline_name: s.short_name,
-            class: sClass,
             departure_code: s.dept_code,
             arrival_code: s.arr_code,
+            duration: s.duration,
+            price: s.price,
+            class: sClass,
             baggage: isFree,
+            free_baggage: s.free_baggage,
+            cabin_baggage: s.cabin_baggage,
+            airplane_model: s.model,
+            airline_name: s.short_name,
             airline_icon_url: s.iconUrl,
         })
       })
@@ -88,7 +91,7 @@ module.exports = {
       res.status(200).json({
         status: true,
         message: "OK",
-        data: result,
+        data: mapped,
       });
     } catch (err) {
       next(err);
