@@ -80,33 +80,4 @@ module.exports = {
       next(err);
     }
   },
-
-  add: async (req, res, next) => {
-    try {
-        const resu = await prisma.flights.create({
-            data: {
-                "departure_airport_id": 50,
-                "arrival_airport_id": 11,
-                "airplane_id": 7,
-                "flight_number": "ID-6540",
-                "flight_date": "2024-06-02",
-                "departure_terminal": "Terminal 2D",
-                "arrival_terminal": "Terminal Domestic",
-                "free_baggage": "20",
-                "cabin_baggage": "7",
-                "class": "ECONOMY",
-                "entertainment": false,
-                "departure_time": "02:00",
-                "arrival_time": "06:10",
-                "price": 2443100,
-                "capacity": 85,
-                "duration": 250
-              }
-        })
-
-        res.json(resu)
-    } catch (err) {
-        next(err)
-    }
-  }
 };
