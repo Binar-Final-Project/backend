@@ -1,0 +1,24 @@
+[
+    {
+      "notification_id": 1,
+      "title": "New Message",
+      "description": "You have received a new message.",
+      "status": "UNREAD",
+      "created_at": "2024-05-29T08:00:00Z"
+    },
+    {
+      "notification_id": 2,
+      "title": "Reminder",
+      "description": "Don't forget your appointment tomorrow.",
+      "status": "UNREAD",
+      "created_at": "2024-05-28T12:00:00Z"
+    },
+    {
+      "notification_id": 3,
+      "title": "Payment Confirmation",
+      "description": "Your payment has been successfully processed.",
+      "status": "READ",
+      "created_at": "2024-05-27T15:00:00Z"
+    }
+  ]
+  
