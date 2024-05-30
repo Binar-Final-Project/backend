@@ -4,12 +4,14 @@ CREATE TYPE "transaction_status" AS ENUM ('UNPAID', 'CANCELLED', 'ISSUED');
 -- CreateTable
 CREATE TABLE "users" (
     "user_id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "email" TEXT NOT NULL,
     "phone_number" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "is_verified" BOOLEAN NOT NULL,
-    "otp_number" TEXT NOT NULL,
+    "otp_number" TEXT,
+    "is_verified" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("user_id")
 );
@@ -37,6 +39,7 @@ CREATE TABLE "transactions" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "user_id" INTEGER NOT NULL,
+    "ticket_id" INTEGER NOT NULL,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("transaction_id")
 );
@@ -47,7 +50,8 @@ CREATE TABLE "tickets" (
     "total_adult" INTEGER NOT NULL,
     "total_children" INTEGER NOT NULL,
     "total_baby" INTEGER NOT NULL,
-    "flight_id" INTEGER NOT NULL,
+    "departure_flight_id" INTEGER NOT NULL,
+    "arrival_flight_id" INTEGER,
 
     CONSTRAINT "tickets_pkey" PRIMARY KEY ("ticket_id")
 );
@@ -59,6 +63,7 @@ CREATE TABLE "orderers" (
     "family_name" TEXT NOT NULL,
     "phone_number" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "user_id" INTEGER NOT NULL,
 
     CONSTRAINT "orderers_pkey" PRIMARY KEY ("orderer_id")
 );
@@ -76,26 +81,18 @@ CREATE TABLE "passengers" (
     "issuing_country" TEXT NOT NULL,
     "valid_until" DATE NOT NULL,
     "orderer_id" INTEGER NOT NULL,
-
-    CONSTRAINT "passengers_pkey" PRIMARY KEY ("passenger_id")
-);
-
--- CreateTable
-CREATE TABLE "boarding_pass" (
-    "boarding_pass_id" SERIAL NOT NULL,
-    "passenger_id" INTEGER NOT NULL,
     "ticket_id" INTEGER NOT NULL,
 
-    CONSTRAINT "boarding_pass_pkey" PRIMARY KEY ("boarding_pass_id")
+    CONSTRAINT "passengers_pkey" PRIMARY KEY ("passenger_id")
 );
 
 -- CreateTable
 CREATE TABLE "flights" (
     "flight_id" SERIAL NOT NULL,
     "flight_number" TEXT NOT NULL,
-    "flight_date" DATE NOT NULL,
-    "departure_time" TIME NOT NULL,
-    "arrival_time" TIME NOT NULL,
+    "flight_date" TEXT NOT NULL,
+    "departure_time" TEXT NOT NULL,
+    "arrival_time" TEXT NOT NULL,
     "departure_terminal" TEXT NOT NULL,
     "arrival_terminal" TEXT NOT NULL,
     "class" TEXT NOT NULL,
@@ -152,10 +149,10 @@ CREATE UNIQUE INDEX "users_phone_number_key" ON "users"("phone_number");
 CREATE UNIQUE INDEX "transactions_booking_code_key" ON "transactions"("booking_code");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "boarding_pass_passenger_id_key" ON "boarding_pass"("passenger_id");
+CREATE UNIQUE INDEX "transactions_ticket_id_key" ON "transactions"("ticket_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "flights_flight_number_key" ON "flights"("flight_number");
+CREATE UNIQUE INDEX "orderers_user_id_key" ON "orderers"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "airports_code_key" ON "airports"("code");
@@ -167,16 +164,22 @@ ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN 
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tickets" ADD CONSTRAINT "tickets_flight_id_fkey" FOREIGN KEY ("flight_id") REFERENCES "flights"("flight_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "tickets"("ticket_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tickets" ADD CONSTRAINT "tickets_departure_flight_id_fkey" FOREIGN KEY ("departure_flight_id") REFERENCES "flights"("flight_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tickets" ADD CONSTRAINT "tickets_arrival_flight_id_fkey" FOREIGN KEY ("arrival_flight_id") REFERENCES "flights"("flight_id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "orderers" ADD CONSTRAINT "orderers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "passengers" ADD CONSTRAINT "passengers_orderer_id_fkey" FOREIGN KEY ("orderer_id") REFERENCES "orderers"("orderer_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "boarding_pass" ADD CONSTRAINT "boarding_pass_passenger_id_fkey" FOREIGN KEY ("passenger_id") REFERENCES "passengers"("passenger_id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "boarding_pass" ADD CONSTRAINT "boarding_pass_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "tickets"("ticket_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "passengers" ADD CONSTRAINT "passengers_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "tickets"("ticket_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "flights" ADD CONSTRAINT "flights_airplane_id_fkey" FOREIGN KEY ("airplane_id") REFERENCES "airplanes"("airplane_id") ON DELETE RESTRICT ON UPDATE CASCADE;
