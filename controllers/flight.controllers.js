@@ -11,7 +11,6 @@ module.exports = {
   search: async (req, res, next) => {
     try {
       const { departure_code, arrival_code, departure_date, total_passenger } = req.body;
-      const return_date = req.body.return_date || null;
       const seat_class = req.body.seat_class.toUpperCase();
 
       let sortBy = req.query.sortBy || "PRICE";
@@ -21,7 +20,7 @@ module.exports = {
 
       const result = await prisma.$queryRaw`
         WITH purchased_ticket AS (
-          SELECT t.flight_id, COUNT(t.flight_id) as count
+          SELECT t.departure_flight_id, COUNT(t.departure_flight_id) as count
           FROM tickets t
           INNER JOIN transactions tr ON tr.ticket_id = t.ticket_id
           WHERE tr.status = 'ISSUED'
@@ -34,7 +33,8 @@ module.exports = {
           a_airport.code as arr_code,
           a_airport.name as arr_name,
           airplane.*,
-          airline.*
+          airline.*,
+          COALESCE(f.capacity - pt.count, f.capacity) as remaining_capacity
         FROM
           flights f
           INNER JOIN airports d_airport ON d_airport.airport_id = f.departure_airport_id
@@ -75,23 +75,26 @@ module.exports = {
             arrival_time: s.arrival_time,
             departure_code: s.dept_code,
             arrival_code: s.arr_code,
+            departure_terminal: s.departure_terminal,
+            arrival_terminal: s.arrival_terminal,
             duration: s.duration,
             price: s.price,
             class: sClass,
             baggage: isFree,
             free_baggage: s.free_baggage,
             cabin_baggage: s.cabin_baggage,
+            flight_entertainment: s.entertainment,
             airplane_model: s.model,
-            airline_name: s.short_name,
+            airline_short_name: s.short_name,
+            airline_name: s.name,
             airline_icon_url: s.iconUrl,
         })
       })
 
-      console.log(result[1].arrival_time < result[1].departure_time)
       res.status(200).json({
         status: true,
         message: "OK",
-        data: mapped,
+        data: mapped
       });
     } catch (err) {
       next(err);
