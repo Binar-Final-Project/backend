@@ -3,7 +3,6 @@ const prisma = new PrismaClient()
 const airlinesRaw = require('./data/airlines.json')
 const airplanesRaw = require('./data/airplanes.json')
 const airportsRaw = require('./data/airports.json')
-const flightsRaw = require('./data/schedules.json')
 
 async function seedAirlines(){
     const airlines = airlinesRaw.map(airline => {
@@ -71,6 +70,13 @@ async function seedAirports(){
     })
 }
 
+const schedule = require('./data/scheduleBased.json')
+async function seedSchedules(){
+    await prisma.flights.createMany({
+        data: schedule
+    })
+}
+
 async function main(){
     try {
         await seedAirlines()
@@ -78,6 +84,8 @@ async function main(){
         await seedAirplanes()
 
         await seedAirports()
+
+        await seedSchedules()
     } catch (err) {
         throw err
     }

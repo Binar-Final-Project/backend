@@ -73,8 +73,10 @@ model tickets {
   total_baby Int
 
   //relationship
-  flight_id Int
-  flight flights @relation(fields: [flight_id], references: [flight_id])
+  departure_flight_id Int
+  departure_flight flights @relation("departure_flight", fields: [departure_flight_id], references: [flight_id])
+  arrival_flight_id Int?
+  arrival_flight flights? @relation("arrival_flight", fields: [arrival_flight_id], references: [flight_id])
   passengers passengers[]
   transaction transactions? //1-1
 }
@@ -112,10 +114,10 @@ model passengers {
 }
 model flights {
   flight_id Int @id @default(autoincrement())
-  flight_number String @unique
-  flight_date DateTime @db.Date
-  departure_time DateTime @db.Time() //example input "14:30"
-  arrival_time DateTime @db.Time() //example input "15:30"
+  flight_number String
+  flight_date String
+  departure_time String //example input "14:30"
+  arrival_time String //example input "15:30"
   departure_terminal String
   arrival_terminal String
   class String
@@ -127,7 +129,8 @@ model flights {
   entertainment Boolean
 
   //relationship
-  tickets tickets[]
+  departure_tickets tickets[] @relation("departure_flight")
+  arrival_tickets tickets[] @relation("arrival_flight")
   airplane_id Int
   airplane airplanes @relation(fields: [airplane_id], references: [airplane_id])
   departure_airport_id Int

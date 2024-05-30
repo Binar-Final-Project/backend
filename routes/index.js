@@ -6,8 +6,10 @@ const docs = require('../docs/v1.json')
 // const ticketRoutes = require('./ticket.routes')
 // Router.use('/tickets', ticketRoutes)
 
-const authRoutes = require('./auth')
+const authRoutes = require('./auth.routes')
 Router.use('/users', authRoutes)
+const flightRouter = require('./flight.routes')
+Router.use('/flights', flightRouter)
 
 Router.get('/', (req,res) => {
     res.status(200).json({
