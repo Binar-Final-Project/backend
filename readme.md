@@ -21,7 +21,6 @@ cp .env.example .env
 
 ```bash
 npx prisma migrate dev
-npx prisma db seed
 ```
 
 #### 5. Run the server
