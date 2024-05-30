@@ -50,7 +50,7 @@ module.exports = {
           AND f.capacity - COALESCE(pt.count, 0) >= ${total_passenger}
         ORDER BY ${sortBy} ${sortOrder};
       `;
-
+      console.log('test')
       let mapped = result.map(s => {
         let isFree = false
         if(s.free_baggage > 0){
