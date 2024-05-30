@@ -24,7 +24,7 @@ module.exports = {
           FROM tickets t
           INNER JOIN transactions tr ON tr.ticket_id = t.ticket_id
           WHERE tr.status = 'ISSUED'
-          GROUP BY t.flight_id
+          GROUP BY t.departure_flight_id
         )
         SELECT
           f.*,
