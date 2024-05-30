@@ -12,3 +12,165 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//enumeration for transactions
+enum transaction_status {
+  UNPAID
+  CANCELLED
+  ISSUED
+}
+
+model users {
+  user_id           Int   @id @default(autoincrement())
+  name         String?
+  email        String   @unique
+  phone_number String   @unique
+  password     String
+  otp_number   String?
+  is_verified  Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  //relationship
+  notifications notifications[]
+  transactions transactions[]
+  orderer orderers?
+}
+
+model notifications {
+  notification_id Int @id @default(autoincrement())
+  title String
+  description String
+  status String
+  created_at DateTime @default(now())
+
+  //relationship
+  user_id Int
+  user users @relation(fields: [user_id], references: [user_id])
+}
+
+model transactions {
+  transaction_id Int @id @default(autoincrement())
+  total_price Int
+  tax Int
+  payment_method String
+  booking_code String @unique
+  status transaction_status
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  //relationship
+  user_id Int
+  user users @relation(fields: [user_id], references: [user_id])
+  ticket_id Int @unique //1-1
+  ticket tickets @relation(fields: [ticket_id], references: [ticket_id])
+}
+
+model tickets {
+  ticket_id Int @id @default(autoincrement())
+  total_adult Int
+  total_children Int
+  total_baby Int
+
+  //relationship
+  departure_flight_id Int
+  departure_flight flights @relation("departure_flight", fields: [departure_flight_id], references: [flight_id])
+  arrival_flight_id Int?
+  arrival_flight flights? @relation("arrival_flight", fields: [arrival_flight_id], references: [flight_id])
+  passengers passengers[]
+  transaction transactions? //1-1
+}
+
+model orderers {
+  orderer_id Int @id @default(autoincrement())
+  name String
+  family_name String
+  phone_number String
+  email String
+
+  //relationship
+  passengers passengers[]
+  user_id Int @unique
+  user users @relation(fields: [user_id], references: [user_id])
+}
+
+model passengers {
+  passenger_id Int @id @default(autoincrement())
+  name String
+  email String
+  passenger_type String
+  phone_number String
+  date_of_birth DateTime @db.Date //example input (YYYY-MM-DD) "2024-05-21"
+  nationality String
+  identity_number String
+  issuing_country String
+  valid_until DateTime @db.Date //example input (YYYY-MM-DD) "2024-05-21"
+
+  //relationship
+  orderer_id Int
+  orderer orderers @relation(fields: [orderer_id], references: [orderer_id])
+  ticket_id Int
+  ticket tickets @relation(fields: [ticket_id], references: [ticket_id])
+}
+model flights {
+  flight_id Int @id @default(autoincrement())
+  flight_number String
+  flight_date String
+  departure_time String //example input "14:30"
+  arrival_time String //example input "15:30"
+  departure_terminal String
+  arrival_terminal String
+  class String
+  price Int
+  duration Int
+  capacity Int
+  free_baggage String
+  cabin_baggage String
+  entertainment Boolean
+
+  //relationship
+  departure_tickets tickets[] @relation("departure_flight")
+  arrival_tickets tickets[] @relation("arrival_flight")
+  airplane_id Int
+  airplane airplanes @relation(fields: [airplane_id], references: [airplane_id])
+  departure_airport_id Int
+  departure_airport airports @relation("departure", fields: [departure_airport_id], references: [airport_id])
+  arrival_airport_id Int
+  arrival_airport airports @relation("arrival", fields: [arrival_airport_id], references: [airport_id])
+}
+
+//Lookup tables
+model airports {
+  airport_id Int @id @default(autoincrement())
+  name String
+  city String
+  country String
+  code String @unique
+
+  //relationship
+  departure flights[] @relation("departure")
+  arrival flights[] @relation("arrival")
+}
+
+model airlines {
+  airline_id Int @id @default(autoincrement())
+  name String
+  short_name String
+  iconUrl String
+
+  //relationship
+  airplanes airplanes[]
+}
+
+model airplanes {
+  airplane_id Int @id @default(autoincrement())
+  model String
+
+  //relationship
+  airline_id Int
+  airline airlines @relation(fields: [airline_id], references: [airline_id])
+  flight flights[]
+}
+
+
+

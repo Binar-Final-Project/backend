@@ -1,0 +1,1044 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BiFlight - API Documentation",
+    "description": "",
+    "version": "1.0.11"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    },
+    {
+      "url": "https://express-production-3572.up.railway.app"
+    }
+  ],
+  "tags": [
+    {
+      "name": "users"
+    },
+    {
+      "name": "flights"
+    },
+    {
+      "name": "tickets"
+    }
+  ],
+  "paths": {
+    "/api/v1/users/register": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/user"
+                  }
+                ],
+                "properties": {
+                  "password": {
+                    "example": "john123"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "created"
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/user"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "is_verified": {
+                              "example": false
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "All fields are required"
+                        },
+                        {
+                          "example": "Email already exists"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/verification-otp": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "otp_number": {
+                    "example": 666666
+                  },
+                  "email": {
+                    "example": "john@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "User Verified!"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "is_verified": {
+                          "example": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Wrong OTP"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "john@gmail.com"
+                  },
+                  "password": {
+                    "example": "john123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email or password is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/sent-forgot-password": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "john@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Reset password link sent to your email"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/reset-password": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "example": "john@gmail.com"
+                  },
+                  "password2": {
+                    "example": "john123"
+                  },
+                  "token": {
+                    "example": "akskdaskdfkasfkasfas"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Password changed successfully"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Password do not match"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flights": {
+      "post": {
+        "tags": [
+          "flights"
+        ],
+        "description": "Ticket Searching API",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string"
+            },
+            "description": "(price/departure_time/arrival_time/duration) - default price"
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": {
+              "type": "string"
+            },
+            "description": "(asc/desc) - default asc"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "departure_code": {
+                    "example": "CGK"
+                  },
+                  "arrival_code": {
+                    "example": "DPS"
+                  },
+                  "departure_date": {
+                    "example": "2024-04-12"
+                  },
+                  "return_date": {
+                    "example": "2024-04-15"
+                  },
+                  "seat_class": {
+                    "example": "economy"
+                  },
+                  "total_passenger": {
+                    "example": 3
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Flight"
+                          },
+                          {
+                            "$ref": "#/components/schemas/Flight"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flights/{id}": {
+      "get": {
+        "tags": [
+          "flights"
+        ],
+        "description": "Detail Ticket API",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FlightDetail"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tickets": {
+      "post": {
+        "tags": [
+          "tickets"
+        ],
+        "description": "API ini dipake pas simpan data diri passengers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "total_adult": {
+                    "example": 2
+                  },
+                  "total_children": {
+                    "example": 1
+                  },
+                  "total_baby": {
+                    "example": 0
+                  },
+                  "orderer": {
+                    "$ref": "#/components/schemas/Orderer"
+                  },
+                  "passengers": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/Passenger"
+                        },
+                        {
+                          "$ref": "#/components/schemas/Passenger"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ticket_id": {
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "user": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@gmail.com"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": 812382132
+          }
+        }
+      },
+      "BadRequestResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "integer",
+            "example": null
+          }
+        }
+      },
+      "UnauthorizedResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "not authorized"
+          },
+          "data": {
+            "type": "integer",
+            "example": null
+          }
+        }
+      },
+      "Flight": {
+        "type": "object",
+        "properties": {
+          "flight_id": {
+            "example": 1
+          },
+          "flight_date": {
+            "example": "2024-06-06"
+          },
+          "departure_time": {
+            "example": "08:30"
+          },
+          "arrival_time": {
+            "example": "08:30"
+          },
+          "duration": {
+            "example": 120
+          },
+          "price": {
+            "example": 9000000
+          },
+          "airline_name": {
+            "example": "Jet Air"
+          },
+          "class": {
+            "example": "Economy"
+          },
+          "departure_code": {
+            "example": "CGK"
+          },
+          "arrival_code": {
+            "example": "DPS"
+          },
+          "baggage": {
+            "example": true,
+            "description": "Buat backend dicek aja value dari baggagenya kl >0 return true"
+          },
+          "airline_icon_url": {
+            "example": "www.imagekit."
+          }
+        }
+      },
+      "FlightDetail": {
+        "type": "object",
+        "properties": {
+          "flight_id": {
+            "example": 1
+          },
+          "flight_number": {
+            "example": "XGV21"
+          },
+          "flight_date": {
+            "example": "2024-05-21T00:00:00.000Z"
+          },
+          "departure_time": {
+            "example": "08:30"
+          },
+          "arrival_time": {
+            "example": "08:30"
+          },
+          "departure_terminal": {
+            "example": "Terminal 1A"
+          },
+          "arrival_terminal": {
+            "example": "Terminal 3A"
+          },
+          "class": {
+            "example": "economy"
+          },
+          "price": {
+            "example": 3000000
+          },
+          "duration": {
+            "example": 120,
+            "description": "format is in minutes"
+          },
+          "capacity": {
+            "example": 120
+          },
+          "free_baggage": {
+            "example": 15
+          },
+          "cabin_baggage": {
+            "example": 7
+          },
+          "entertainment": {
+            "example": true
+          },
+          "airplane": {
+            "example": "JT-03"
+          },
+          "airline": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "example": "Lion Air"
+              },
+              "short_name": {
+                "example": "Lion"
+              },
+              "iconUrl": {
+                "example": "www....."
+              }
+            }
+          },
+          "departure_airport": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "example": "I Gusti Ngurah Rai"
+              },
+              "city": {
+                "example": "Bali"
+              },
+              "country": {
+                "example": "Indonesia"
+              },
+              "code": {
+                "example": "DPS"
+              }
+            }
+          },
+          "arrival_airport": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "example": "Soekarno Hatta"
+              },
+              "city": {
+                "example": "Tangerang"
+              },
+              "country": {
+                "example": "Indonesia"
+              },
+              "code": {
+                "example": "CGK"
+              }
+            }
+          }
+        }
+      },
+      "Orderer": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "example": "Doe"
+          },
+          "family_name": {
+            "example": null
+          },
+          "phone_number": {
+            "example": 8123182381
+          },
+          "email": {
+            "example": "doe@gmail.com"
+          }
+        }
+      },
+      "Passenger": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "example": "John"
+          },
+          "email": {
+            "example": "john@gmail.com"
+          },
+          "passenger_type": {
+            "example": "adult"
+          },
+          "phone_number": {
+            "example": 8128339122
+          },
+          "date_of_birth": {
+            "example": "2000-04-14T00:00:00.000Z"
+          },
+          "nationality": {
+            "example": "Indonesia"
+          },
+          "identity_number": {
+            "example": 1234213121323
+          },
+          "issuing_country": {
+            "example": "Indonesia"
+          },
+          "valid_until": {
+            "example": "2027-04-19T00:00:00.000Z"
+          }
+        }
+      }
+    }
+  }
+}
