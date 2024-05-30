@@ -41,7 +41,7 @@ module.exports = {
           INNER JOIN airports a_airport ON a_airport.airport_id = f.arrival_airport_id
           INNER JOIN airplanes airplane ON airplane.airplane_id = f.airplane_id
           INNER JOIN airlines airline ON airline.airline_id = airplane.airline_id
-          LEFT JOIN purchased_ticket pt ON pt.flight_id = f.flight_id
+          LEFT JOIN purchased_ticket pt ON pt.departure_flight_id = f.flight_id
         WHERE
           f.flight_date::text LIKE '%' || ${departure_date} || '%'
           AND d_airport.code = ${departure_code}
