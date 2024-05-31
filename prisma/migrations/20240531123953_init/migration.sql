@@ -150,12 +150,6 @@ CREATE UNIQUE INDEX "transactions_booking_code_key" ON "transactions"("booking_c
 
 -- CreateIndex
 CREATE UNIQUE INDEX "transactions_ticket_id_key" ON "transactions"("ticket_id");
-<<<<<<<< HEAD:prisma/migrations/20240527134755_init/migration.sql
-
--- CreateIndex
-CREATE UNIQUE INDEX "orderers_user_id_key" ON "orderers"("user_id");
-========
->>>>>>>> 55461fa6eb9213ef4d1102066a33e3d1d8489029:prisma/migrations/20240530023226_new_migration/migration.sql
 
 -- CreateIndex
 CREATE UNIQUE INDEX "orderers_user_id_key" ON "orderers"("user_id");
@@ -173,17 +167,10 @@ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_fkey" FOREIGN KE
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "tickets"("ticket_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-<<<<<<<< HEAD:prisma/migrations/20240527134755_init/migration.sql
-ALTER TABLE "tickets" ADD CONSTRAINT "tickets_flight_id_fkey" FOREIGN KEY ("flight_id") REFERENCES "flights"("flight_id") ON DELETE RESTRICT ON UPDATE CASCADE;
-========
 ALTER TABLE "tickets" ADD CONSTRAINT "tickets_departure_flight_id_fkey" FOREIGN KEY ("departure_flight_id") REFERENCES "flights"("flight_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tickets" ADD CONSTRAINT "tickets_arrival_flight_id_fkey" FOREIGN KEY ("arrival_flight_id") REFERENCES "flights"("flight_id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "orderers" ADD CONSTRAINT "orderers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
->>>>>>>> 55461fa6eb9213ef4d1102066a33e3d1d8489029:prisma/migrations/20240530023226_new_migration/migration.sql
 
 -- AddForeignKey
 ALTER TABLE "orderers" ADD CONSTRAINT "orderers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
