@@ -218,8 +218,7 @@ const changePassword = async (req, res, next) => {
                 status: false,
                 message: 'Password or token not sent',
             });
-        }
-        co
+        }s
         const decryptToken = crypto.AES.decrypt(token, TOKEN_SECRET).toString(crypto.enc.Utf8);
         const data = decryptToken.split('[|]');
 
