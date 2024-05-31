@@ -20,6 +20,12 @@ const sendMailOTP = async (email, otp_number) => {
 const register = async (req, res, next) => {
     try {
         const { name, password, email, phone_number } = req.body;
+        if(!name || !password || !email || !phone_number){
+            return res.status(400).json({
+                status: false,
+                message: 'All fields are required!',
+            });
+        }
         const hashedPassword = crypto.SHA256(password).toString();
         const otp_number = generateOTP();
         
@@ -29,13 +35,23 @@ const register = async (req, res, next) => {
                 password: hashedPassword,
                 email: email,
                 otp_number: otp_number.chipperOtp,
-                phone_number: phone_number
+                phone_number: phone_number,
+                notifications: {
+                    create: {
+                        title: 'Registration Success',
+                        description: 'Congratulations, your account has been successfully created!',
+                        status: 'unread'
+                    }
+                }
             }
         });
 
         await sendMailOTP(email, otp_number.otp_number);
-        delete users.otp_number;
-        res.json({
+        delete users.otp_number
+        delete users.password
+        delete users.created_at 
+        delete users.updated_at
+        res.status(200).json({
             status: true,
             message: 'User registered!',
             data: users
@@ -45,7 +61,7 @@ const register = async (req, res, next) => {
         if (error.code === 'P2002') {
             return res.status(400).json({
                 status: false,
-                message: 'Email or phone number already exists'
+                message: 'Email or phone number already exists',
             });
         }
 
@@ -78,23 +94,28 @@ const verify = async (req, res, next) => {
             });
         }
 
-        await prisma.users.update({
+        const result = await prisma.users.update({
             where:{
                 email
             },
             data:{
                 is_verified:true,
                 otp_number:null,
+                notifications: {
+                    create: {
+                        title: 'Verification Success',
+                        description: 'Your account has successfully verified!',
+                        status: 'unread'
+                    }
+                }
             }
         });
-
-        const token = jwt.sign({ id: users.id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
             message: 'User verified!',
             data: {
-                token
+                is_verified: result.is_verified
             }
         });
     } catch (error) {
@@ -105,6 +126,12 @@ const verify = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
+        if(!password || !email ){
+            return res.status(400).json({
+                status: false,
+                message: 'All fields are required!',
+            });
+        }
         
         const users = await prisma.users.findUnique({
             where: {
@@ -128,7 +155,7 @@ const login = async (req, res, next) => {
             });
         }
 
-        const token = jwt.sign({ id: users.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: users.user_id }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -147,6 +174,13 @@ const login = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
+        if(!email){
+            return res.status(400).json({
+                status: false,
+                message: 'Email not sent',
+            });
+        }
+        
         const users = await prisma.users.findUnique({
             where: {
                 email
@@ -161,14 +195,15 @@ const forgotPassword = async (req, res, next) => {
         }
 
         //create a unique string for reset password its was a email user and id encrypted with some secret key
-        const resetPasswordToken = crypto.AES.encrypt(`${users.email}[|]${users.id}`, `${TOKEN_SECRET}`).toString();
-        const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}&email=${users.email}`
+        const resetPasswordToken = crypto.AES.encrypt(`${users.email}[|]${users.user_id}`, `${TOKEN_SECRET}`).toString();
+        const link = `${FORGOT_PASSWORD_URL}?token=${resetPasswordToken}`
         
         const html = await getHTML('forgot-password.ejs', { link });
         await sendMail(email, 'Reset Password', html);
         return res.json({
             status: true,
-            message: 'Reset password link sent to your email'
+            message: 'Reset password link sent to your email',
+            data: null
         });
     } catch (error) {
         next(error);
@@ -177,32 +212,44 @@ const forgotPassword = async (req, res, next) => {
 
 const changePassword = async (req, res, next) => {
     try {
-        const { email, password, token } = req.body;
+        const { password1, password2, token } = req.body;
+        if(!password1 || !password2 || !token){
+            return res.status(400).json({
+                status: false,
+                message: 'Password or token not sent',
+            });
+        }
+        
         const decryptToken = crypto.AES.decrypt(token, TOKEN_SECRET).toString(crypto.enc.Utf8);
         const data = decryptToken.split('[|]');
+
+        const email = data[0]
 
         if (data.length !== 2) {
             return res.status(400).json({
                 status: false,
-                message: 'Invalid token'
+                message: 'Invalid token',
+                data: null
             });
         }
 
-        if (data[0] !== email) {
+        if(!password1 || password1.length < 1){
             return res.status(400).json({
                 status: false,
-                message: 'Invalid email'
+                message: 'Password must be at least 1 characters',
+                data: null
             });
         }
 
-        if(!password || password.length < 1){
+        if(password1 !== password2){
             return res.status(400).json({
                 status: false,
-                message: 'Password must be at least 1 characters'
+                message: 'Password do not match',
+                data: null
             });
         }
 
-        const hashedPassword = crypto.SHA256(password).toString();
+        const hashedPassword = crypto.SHA256(password1).toString();
         await prisma.users.update({
             where: {
                 email
@@ -214,7 +261,8 @@ const changePassword = async (req, res, next) => {
 
         res.json({
             status: true,
-            message: 'Password changed successfully'
+            message: 'Password changed successfully',
+            data: null
         });
     }catch(error){
         next(error)
@@ -227,7 +275,7 @@ const updateProfile = async (req, res, next) => {
         const { id } = req.user;
         await prisma.users.update({
             where: {
-                id
+                user_id: id
             },
             data: {
                 name,
@@ -253,7 +301,7 @@ const updatePassword = async(req, res, next) =>{
     try {
         const users = await prisma.users.findUnique({
             where: {
-                id
+                user_id: id
             }
         });
 
@@ -277,7 +325,7 @@ const updatePassword = async(req, res, next) =>{
 
         await prisma.users.update({
             where: {
-                id
+                user_id: id
             },
             data: {
                 password: hashedNewPassword
@@ -299,7 +347,7 @@ const getProfile = async (req, res, next) => {
         const { id } = req.user;
         const users = await prisma.users.findUnique({
             where: {
-                id
+                user_id: id
             },
             select: {
                 name: true,
@@ -317,4 +365,59 @@ const getProfile = async (req, res, next) => {
     }
 }
 
-module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile};
+const deleteAllUsers = async (req,res, next) => {
+    try {
+        await prisma.notifications.deleteMany()
+        await prisma.users.deleteMany()
+
+        res.status(200).json({
+            status: true,
+            message: 'Users deleted'
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+const resendOTP = async (req,res,next) => {
+    try {
+        const {email} = req.body
+        if(!email){
+            return res.status(400).json({
+                status: false,
+                message: 'Email not sent',
+                data: null
+            })
+        }
+
+        const {otp_number, chipperOtp} = generateOTP()
+        const updated = await prisma.users.update({
+            data: {
+                otp_number: chipperOtp
+            },
+            where: {
+                email
+            }
+        })
+
+        if(!updated){
+            return res.status(400).json({
+                status: false,
+                message: 'failed to updated',
+                data: null
+            })
+        }
+
+        await sendMailOTP(email, otp_number)
+
+        return res.status(200).json({
+            status: true,
+            message: 'OTP UPDATED!',
+            data: null
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};

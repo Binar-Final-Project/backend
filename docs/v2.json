@@ -22,6 +22,9 @@
     },
     {
       "name": "tickets"
+    },
+    {
+      "name": "notifications"
     }
   ],
   "paths": {
@@ -34,16 +37,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/user"
-                  }
-                ],
-                "properties": {
-                  "password": {
-                    "example": "john123"
-                  }
-                }
+                "$ref": "#/components/schemas/user"
               }
             }
           },
@@ -143,7 +137,8 @@
                 "type": "object",
                 "properties": {
                   "otp_number": {
-                    "example": 666666
+                    "example": "666666",
+                    "description": "string"
                   },
                   "email": {
                     "example": "john@gmail.com"
@@ -510,6 +505,92 @@
         }
       }
     },
+    "/api/v1/users/resend-otp": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "john@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OTP UPDATED!"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/flights": {
       "post": {
         "tags": [
@@ -523,7 +604,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "(price/departure_time/arrival_time/duration) - default price"
+            "description": "(price/duration/departure_time/arrival_time) - optional"
           },
           {
             "in": "query",
@@ -531,7 +612,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "(asc/desc) - default asc"
+            "description": "(asc/desc) - optional"
           }
         ],
         "requestBody": {
@@ -548,9 +629,6 @@
                   },
                   "departure_date": {
                     "example": "2024-04-12"
-                  },
-                  "return_date": {
-                    "example": "2024-04-15"
                   },
                   "seat_class": {
                     "example": "economy"
@@ -590,89 +668,6 @@
                           }
                         ]
                       }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/BadRequestResponse"
-                    }
-                  ],
-                  "properties": {
-                    "message": {
-                      "oneOf": [
-                        {
-                          "example": "Data not found"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/BadRequestResponse"
-                    }
-                  ],
-                  "properties": {
-                    "message": {
-                      "example": "Internal Server Error"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/flights/{id}": {
-      "get": {
-        "tags": [
-          "flights"
-        ],
-        "description": "Detail Ticket API",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "example": true
-                    },
-                    "message": {
-                      "example": "OK"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/FlightDetail"
                     }
                   }
                 }
@@ -795,10 +790,128 @@
           }
         }
       }
+    },
+    "/api/v1/notifications/{id}": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "description": "Get all notifications data",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Notification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "notification_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Successful"
+          },
+          "description": {
+            "type": "string",
+            "example": "Profile successfully updated"
+          },
+          "status": {
+            "type": "string",
+            "example": "unread"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2012-07-10T14:58:00.000Z"
+          }
+        }
+      },
       "user": {
         "type": "object",
         "properties": {
@@ -856,25 +969,16 @@
             "example": 1
           },
           "flight_date": {
-            "example": "2024-06-06"
+            "example": "2024-06-06T00:00:00.000Z"
+          },
+          "arrival_date": {
+            "example": "2024-06-06T00:00:00.000Z"
           },
           "departure_time": {
             "example": "08:30"
           },
           "arrival_time": {
-            "example": "08:30"
-          },
-          "duration": {
-            "example": 120
-          },
-          "price": {
-            "example": 9000000
-          },
-          "airline_name": {
-            "example": "Jet Air"
-          },
-          "class": {
-            "example": "Economy"
+            "example": "09:30"
           },
           "departure_code": {
             "example": "CGK"
@@ -882,111 +986,47 @@
           "arrival_code": {
             "example": "DPS"
           },
-          "baggage": {
-            "example": true,
-            "description": "Buat backend dicek aja value dari baggagenya kl >0 return true"
-          },
-          "airline_icon_url": {
-            "example": "www.imagekit."
-          }
-        }
-      },
-      "FlightDetail": {
-        "type": "object",
-        "properties": {
-          "flight_id": {
-            "example": 1
-          },
-          "flight_number": {
-            "example": "XGV21"
-          },
-          "flight_date": {
-            "example": "2024-05-21T00:00:00.000Z"
-          },
-          "departure_time": {
-            "example": "08:30"
-          },
-          "arrival_time": {
-            "example": "08:30"
-          },
           "departure_terminal": {
             "example": "Terminal 1A"
           },
           "arrival_terminal": {
-            "example": "Terminal 3A"
-          },
-          "class": {
-            "example": "economy"
-          },
-          "price": {
-            "example": 3000000
+            "example": "Terminal Domestic"
           },
           "duration": {
-            "example": 120,
-            "description": "format is in minutes"
+            "example": 60
           },
-          "capacity": {
-            "example": 120
+          "price": {
+            "example": 9000000
           },
-          "free_baggage": {
-            "example": 15
+          "class": {
+            "example": "Economy"
           },
-          "cabin_baggage": {
-            "example": 7
+          "remaining_capacity": {
+            "example": 45
           },
-          "entertainment": {
+          "baggage": {
             "example": true
           },
-          "airplane": {
-            "example": "JT-03"
+          "free_baggage": {
+            "example": "20"
           },
-          "airline": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "example": "Lion Air"
-              },
-              "short_name": {
-                "example": "Lion"
-              },
-              "iconUrl": {
-                "example": "www....."
-              }
-            }
+          "cabin_baggage": {
+            "example": "7"
           },
-          "departure_airport": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "example": "I Gusti Ngurah Rai"
-              },
-              "city": {
-                "example": "Bali"
-              },
-              "country": {
-                "example": "Indonesia"
-              },
-              "code": {
-                "example": "DPS"
-              }
-            }
+          "flight_entertainment": {
+            "example": true
           },
-          "arrival_airport": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "example": "Soekarno Hatta"
-              },
-              "city": {
-                "example": "Tangerang"
-              },
-              "country": {
-                "example": "Indonesia"
-              },
-              "code": {
-                "example": "CGK"
-              }
-            }
+          "airplane_model": {
+            "example": "Airbus A320"
+          },
+          "airline_short_name": {
+            "example": "Batik"
+          },
+          "airline_name": {
+            "example": "Batik Air"
+          },
+          "airline_icon_url": {
+            "example": "https://ik.imagekit.io"
           }
         }
       },
