@@ -1,35 +1,25 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-getNotifications = async (req, res) => {
-  const userId = parseInt(req.params.userId);
-
+getNotificationById = async (req, res) => {
+  const { id } = req.params;
   try {
     const notifications = await prisma.notifications.findMany({
-      where: {
-        user_id: userId,
-      },
-      select: {
-        title: true,
-        description: true,
-        created_at: true,
-        status: true,
-      },
+      where: { user_id: parseInt(id) },
     });
 
-    const formattedNotifications = notifications.map((notification) => ({
-      title: notification.title,
-      description: notification.description,
-      date: notification.created_at.toISOString().split("T")[0], // YYYY-MM-DD
-      status: notification.status,
-      time: notification.created_at.toTimeString().split(" ")[0], // HH:MM:SS
-    }));
-
-    res.status(200).json(formattedNotifications);
+    res.json({
+      status: true,
+      message: "OK",
+      data: notifications,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching notifications", error });
+    res.status(500).json({
+      status: false,
+      message: "Error retrieving notifications",
+      error: error.message,
+    });
   }
 };
 
-
-module.exports = { getNotifications };
+module.exports = { getNotificationById };
