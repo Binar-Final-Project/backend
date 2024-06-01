@@ -84,6 +84,12 @@ const verify = async (req, res, next) => {
                 message: 'User not found'
             });
         }
+         if (users.is_verified == true) {
+            return res.status(200).json({
+                status: true,
+                message: 'User found '
+             });
+        }
 
         const decryptedOtp = crypto.AES.decrypt(users.otp_number, TOKEN_SECRET).toString(crypto.enc.Utf8);
         
