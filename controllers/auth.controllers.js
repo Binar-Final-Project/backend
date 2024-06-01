@@ -87,7 +87,7 @@ const verify = async (req, res, next) => {
          if (users.is_verified == true) {
             return res.status(200).json({
                 status: true,
-                message: 'User found '
+                message: 'User verified'
              });
         }
 
