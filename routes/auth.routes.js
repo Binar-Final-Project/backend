@@ -12,7 +12,7 @@ Router.post('/resend-otp', resendOTP)
 //private routes
 Router.post('/update-profile', verifyToken, updateProfile)
 Router.post('/update-password', verifyToken, updatePassword)
-Router.get('/me', verifyToken, getProfile)
+Router.get('/profile', verifyToken, getProfile)
 
 //danger routes
 Router.get('/delete-user', deleteAllUsers)
