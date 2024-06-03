@@ -3,9 +3,16 @@ const prisma = new PrismaClient();
 
 getNotificationById = async (req, res, next) => {
   const { id } = req.params;
+  const { status } = req.query; 
+
   try {
+    const whereClause = { user_id: parseInt(id) };
+    if (status) {
+      whereClause.status = status; 
+    }
+
     const notifications = await prisma.notifications.findMany({
-      where: { user_id: parseInt(id) },
+      where: whereClause,
     });
 
     if (notifications.length === 0) {

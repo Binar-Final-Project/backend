@@ -16,10 +16,8 @@ app.use(
 app.use(morgan("dev"));
 
 const routes = require("./routes/index");
-const notificationsRoute = require("./routes/notification.routes");
 
 app.use("/api/v1", routes);
-app.use("/api/v1", notificationsRoute);
 
 const { PORT } = process.env || 3000;
 app.listen(PORT, () => console.log("Server is listening on port", PORT));

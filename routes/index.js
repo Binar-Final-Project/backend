@@ -10,6 +10,8 @@ const authRoutes = require('./auth.routes')
 Router.use('/users', authRoutes)
 const flightRouter = require('./flight.routes')
 Router.use('/flights', flightRouter)
+const notificationsRoute = require("./notification.routes");
+Router.use("/notifications", notificationsRoute);
 
 Router.get('/', (req,res) => {
     res.status(200).json({
