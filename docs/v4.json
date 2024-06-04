@@ -1,0 +1,2096 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BiFlight - API Documentation",
+    "description": "",
+    "version": "1.0.11"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    },
+    {
+      "url": "https://express-production-3572.up.railway.app"
+    }
+  ],
+  "tags": [
+    {
+      "name": "users"
+    },
+    {
+      "name": "flights"
+    },
+    {
+      "name": "tickets"
+    },
+    {
+      "name": "notifications"
+    }
+  ],
+  "paths": {
+    "/api/v1/users/register": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/user"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "password": {
+                        "example": "John123"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "created"
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/user"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "is_verified": {
+                              "example": false
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "All fields are required"
+                        },
+                        {
+                          "example": "Email already exists"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/verification-otp": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "otp_number": {
+                    "example": "666666",
+                    "type": "string",
+                    "description": "string"
+                  },
+                  "email": {
+                    "example": "john@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "User Verified!"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "is_verified": {
+                          "example": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Wrong OTP"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "john@gmail.com"
+                  },
+                  "password": {
+                    "example": "john123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email or password is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/sent-forgot-password": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "john@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Reset password link sent to your email"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/reset-password": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "example": "john@gmail.com"
+                  },
+                  "password2": {
+                    "example": "john123"
+                  },
+                  "token": {
+                    "example": "akskdaskdfkasfkasfas"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Password changed successfully"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Password do not match"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/resend-otp": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "john@gmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OTP UPDATED!"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/update-profile": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "description": "Update profile API",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "example": "Johnny Johnny Yes Papa"
+                  },
+                  "phone_number": {
+                    "example": 832134221,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Profile updated!"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "All fields are required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/update-password": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "description": "Update profile API",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "old_password": {
+                    "example": "john123"
+                  },
+                  "new_password": {
+                    "example": "john321"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Password updated!"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Invalid old password"
+                        },
+                        {
+                          "example": "All fields are required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/profile": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "example": "John"
+                        },
+                        "email": {
+                          "example": "john@gmail.com"
+                        },
+                        "phone_number": {
+                          "example": 823183123912,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "All fields are required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flights": {
+      "post": {
+        "tags": [
+          "flights"
+        ],
+        "description": "Ticket Searching API",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string"
+            },
+            "description": "(price/duration/departure_time/arrival_time) - optional"
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": {
+              "type": "string"
+            },
+            "description": "(asc/desc) - optional"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "departure_code": {
+                    "example": "CGK"
+                  },
+                  "arrival_code": {
+                    "example": "DPS"
+                  },
+                  "departure_date": {
+                    "example": "2024-04-12"
+                  },
+                  "seat_class": {
+                    "example": "economy"
+                  },
+                  "total_passenger": {
+                    "example": 3
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Flight"
+                          },
+                          {
+                            "$ref": "#/components/schemas/Flight"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tickets": {
+      "post": {
+        "tags": [
+          "tickets"
+        ],
+        "description": "API ini dipake pas simpan data diri passengers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flight_id": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "example": 1
+                        },
+                        {
+                          "example": 4
+                        }
+                      ]
+                    }
+                  },
+                  "total_adult": {
+                    "example": 2
+                  },
+                  "total_children": {
+                    "example": 0
+                  },
+                  "total_baby": {
+                    "example": 0
+                  },
+                  "orderer": {
+                    "$ref": "#/components/schemas/Orderer"
+                  },
+                  "passengers": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/Passenger"
+                        },
+                        {
+                          "$ref": "#/components/schemas/Passenger"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ticket_id": {
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "All fields are required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Get all notifications data",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Notification"
+                          },
+                          {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Get all history transaction data",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lt",
+            "schema": {
+              "type": "string",
+              "example": "2024-05-31"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gte",
+            "schema": {
+              "type": "string",
+              "example": "2024-05-01"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "description": "search booking code query",
+            "schema": {
+              "type": "string",
+              "example": "XG23H2N0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/Transaction"
+                          },
+                          {
+                            "$ref": "#/components/schemas/Transaction"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/print/{id}": {
+      "get": {
+        "tags": [
+          "transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Print issued ticket API (send pdf to email)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Tickets have been successfully sent to your email"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/pay": {
+      "post": {
+        "tags": [
+          "transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Ticket Payment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "booking_code": {
+                    "example": "G4H87BP1"
+                  },
+                  "payment_method": {
+                    "example": "credit"
+                  },
+                  "card_number": {
+                    "example": 44003202321033,
+                    "type": "string"
+                  },
+                  "card_holder_name": {
+                    "example": "John"
+                  },
+                  "cvv": {
+                    "example": 33
+                  },
+                  "expiry_date": {
+                    "example": "07/29"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Payment Successful"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "example": "ISSUED"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "All fields are required"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "example": 1
+          },
+          "total_price": {
+            "example": 6050000
+          },
+          "tax": {
+            "example": 550000
+          },
+          "booking_code": {
+            "example": "G4H87BP1"
+          },
+          "status": {
+            "example": "ISSUED"
+          },
+          "total_adult": {
+            "example": 2
+          },
+          "total_children": {
+            "example": 0
+          },
+          "total_baby": {
+            "example": 0
+          },
+          "departure_flight": {
+            "type": "object",
+            "properties": {
+              "flight_date": {
+                "example": "2024-06-06"
+              },
+              "arrival_date": {
+                "example": "2024-06-06"
+              },
+              "departure_time": {
+                "example": "08:30"
+              },
+              "arrival_time": {
+                "example": "09:30"
+              },
+              "departure_airport": {
+                "example": "Soekarno Hatta"
+              },
+              "arrival_airport": {
+                "example": "Ngurah Rai"
+              },
+              "departure_terminal": {
+                "example": "Terminal 1A"
+              },
+              "arrival_terminal": {
+                "example": "Terminal Domestic"
+              },
+              "duration": {
+                "example": 60
+              },
+              "class": {
+                "example": "Economy"
+              },
+              "airplane_model": {
+                "example": "JT - 203"
+              },
+              "airline": {
+                "example": "Jet Air"
+              }
+            }
+          },
+          "return_flight": {
+            "type": "object",
+            "properties": {
+              "flight_date": {
+                "example": "2024-06-06"
+              },
+              "arrival_date": {
+                "example": "2024-06-06"
+              },
+              "departure_time": {
+                "example": "08:30"
+              },
+              "arrival_time": {
+                "example": "09:30"
+              },
+              "departure_airport": {
+                "example": "Soekarno Hatta"
+              },
+              "arrival_airport": {
+                "example": "Ngurah Rai"
+              },
+              "departure_terminal": {
+                "example": "Terminal 1A"
+              },
+              "arrival_terminal": {
+                "example": "Terminal Domestic"
+              },
+              "duration": {
+                "example": 60
+              },
+              "class": {
+                "example": "Economy"
+              },
+              "airplane_model": {
+                "example": "JT - 203"
+              },
+              "airline": {
+                "example": "Jet Air"
+              }
+            }
+          },
+          "passengers": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "example": "Mr"
+                    },
+                    "name": {
+                      "example": "Harry Maguire"
+                    },
+                    "id": {
+                      "example": 3210120301012
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "example": "Mr"
+                    },
+                    "name": {
+                      "example": "Jadon Sancho"
+                    },
+                    "id": {
+                      "example": 321012030103212
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "notification_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Successful"
+          },
+          "description": {
+            "type": "string",
+            "example": "Profile successfully updated"
+          },
+          "status": {
+            "type": "string",
+            "example": "unread"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2012-07-10T14:58:00.000Z"
+          }
+        }
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@gmail.com"
+          },
+          "phone_number": {
+            "type": "string",
+            "example": 812382132
+          }
+        }
+      },
+      "BadRequestResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "integer",
+            "example": null
+          }
+        }
+      },
+      "UnauthorizedResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "not authorized"
+          },
+          "data": {
+            "type": "integer",
+            "example": null
+          }
+        }
+      },
+      "Flight": {
+        "type": "object",
+        "properties": {
+          "flight_id": {
+            "example": 1
+          },
+          "flight_date": {
+            "example": "2024-06-06"
+          },
+          "arrival_date": {
+            "example": "2024-06-06"
+          },
+          "departure_time": {
+            "example": "08:30"
+          },
+          "arrival_time": {
+            "example": "09:30"
+          },
+          "departure_code": {
+            "example": "CGK"
+          },
+          "arrival_code": {
+            "example": "DPS"
+          },
+          "departure_terminal": {
+            "example": "Terminal 1A"
+          },
+          "arrival_terminal": {
+            "example": "Terminal Domestic"
+          },
+          "duration": {
+            "example": 60
+          },
+          "price": {
+            "example": 9000000
+          },
+          "class": {
+            "example": "Economy"
+          },
+          "remaining_capacity": {
+            "example": 45
+          },
+          "baggage": {
+            "example": true
+          },
+          "free_baggage": {
+            "example": "20"
+          },
+          "cabin_baggage": {
+            "example": "7"
+          },
+          "flight_entertainment": {
+            "example": true
+          },
+          "airplane_model": {
+            "example": "Airbus A320"
+          },
+          "airline_short_name": {
+            "example": "Batik"
+          },
+          "airline_name": {
+            "example": "Batik Air"
+          },
+          "airline_icon_url": {
+            "example": "https://ik.imagekit.io"
+          }
+        }
+      },
+      "Orderer": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "example": "Doe"
+          },
+          "family_name": {
+            "example": null
+          },
+          "phone_number": {
+            "example": 8123182381
+          },
+          "email": {
+            "example": "doe@gmail.com"
+          }
+        }
+      },
+      "Passenger": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "example": "John"
+          },
+          "email": {
+            "example": "john@gmail.com"
+          },
+          "passenger_type": {
+            "example": "adult"
+          },
+          "phone_number": {
+            "example": 8128339122
+          },
+          "date_of_birth": {
+            "example": "2000-04-14"
+          },
+          "nationality": {
+            "example": "Indonesia"
+          },
+          "identity_number": {
+            "example": 1234213121323
+          },
+          "issuing_country": {
+            "example": "Indonesia"
+          },
+          "valid_until": {
+            "example": "2027-04-19"
+          }
+        }
+      }
+    }
+  }
+}
