@@ -78,6 +78,7 @@ CREATE TABLE "passengers" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "passenger_type" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
     "phone_number" TEXT NOT NULL,
     "date_of_birth" DATE NOT NULL,
     "nationality" TEXT NOT NULL,
