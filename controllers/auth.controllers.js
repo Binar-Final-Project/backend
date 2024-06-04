@@ -351,7 +351,7 @@ const updatePassword = async(req, res, next) =>{
 
 const getProfile = async (req, res, next) => {
     try {
-        const { id } = req.user;
+        const { id } = req.user.user_id;
         const users = await prisma.users.findUnique({
             where: {
                 user_id: id
