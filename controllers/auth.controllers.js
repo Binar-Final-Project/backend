@@ -161,7 +161,10 @@ const login = async (req, res, next) => {
             });
         }
 
-        const token = jwt.sign({ id: users.user_id }, JWT_SECRET, { expiresIn: '1h' });
+        delete users.otp_number
+        delete users.password
+        console.log('user login:', users)
+        const token = jwt.sign({...users}, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -424,4 +427,16 @@ const resendOTP = async (req,res,next) => {
     }
 }
 
-module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};
+const whoami = async (req, res, next) => {
+    try {
+        res.json({
+            status: true,
+            message: 'OK',
+            data: req.user
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};

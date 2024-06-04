@@ -20,6 +20,14 @@ const verifyToken = (req, res, next) => {
                 message: 'Unauthorized'
             });
         }
+        delete data.iat
+        delete data.exp
+
+        if (data.user) {
+            Object.assign(data, data.user);
+            delete data.user; // Hapus objek user setelah memindahkan propertinya
+        }
+        
         req.user = data;
         next();
     });

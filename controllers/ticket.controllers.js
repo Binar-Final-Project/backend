@@ -49,7 +49,7 @@ module.exports = {
         try {
             let {flights, total_adult, total_children, total_baby, orderer, passengers} = req.body
 
-            if(!flights.length || !total_adult || !total_children || !total_baby || !Object.keys(orderer).length || !passengers.length){
+            if(!flights.length || total_adult<1 || total_children<0 || total_baby<0 || !Object.keys(orderer).length || !passengers.length){
                 res.status(400).json({
                     status: false,
                     message: 'All fields are required!',
@@ -62,71 +62,88 @@ module.exports = {
             const departure_flight = flights[0]
             const arrival_flight = flights[1] || null
 
-            const ordererDb = await prisma.users.update({
-                data: {
-                    orderer: {
-                        create: {...orderer}
-                    }
-                },
-                where: {user_id: req.user.id},
-                include: {
-                    orderer: {
-                        select: {orderer_id: true}
-                    }
-                }
-            })
-
-            passengers = passengers.map(p => ({
-                ...p,
-                orderer_id: ordererDb.orderer.orderer_id,
-                date_of_birth: new Date(p.date_of_birth),
-                valid_until: new Date(p.valid_until)
-            }))
-
-            const ticket = await prisma.tickets.create({
-                data: {
-                    total_adult,
-                    total_baby,
-                    total_children,
-                    departure_flight_id: departure_flight,
-                    arrival_flight_id: arrival_flight,
-                    transaction: {
-                        create: {
-                            total_price: price,
-                            status: transaction_status.UNPAID,
-                            booking_code: await generateBookingCode(),
-                            tax: tax,
-                            user: {
-                                connect: {user_id: req.user.id}
+            const result = await prisma.$transaction(async (prisma) => {
+                const ordererDb = await prisma.users.update({
+                    data: {
+                        orderer: {
+                            upsert: {
+                                create: { ...orderer },
+                                update: { ...orderer }
                             }
                         }
                     },
-                    passengers: {
-                        createMany: {
-                            data: passengers,
-                            
+                    where: { user_id: req.user.user_id },
+                    include: {
+                        orderer: {
+                            select: { orderer_id: true }
                         }
                     }
-                },
-                include: {
-                    transaction: true
+                });
+        
+                if (!ordererDb) {
+                    throw new Error('Orderer is failed to create/update');
                 }
-            })
-
-            if(!ticket){
-                res.status(400).json({
-                    status: false,
-                    message: 'Ticket fail to created',
-                    data: null
-                })
-            }
-
+        
+                passengers = passengers.map(p => ({
+                    ...p,
+                    orderer_id: ordererDb.orderer.orderer_id,
+                    date_of_birth: new Date(p.date_of_birth),
+                    valid_until: new Date(p.valid_until)
+                }));
+        
+                const ticket = await prisma.tickets.create({
+                    data: {
+                        total_adult,
+                        total_baby,
+                        total_children,
+                        departure_flight_id: departure_flight,
+                        arrival_flight_id: arrival_flight,
+                        transaction: {
+                            create: {
+                                total_price: price,
+                                status: transaction_status.UNPAID,
+                                booking_code: await generateBookingCode(),
+                                tax: tax,
+                                user: {
+                                    connect: { user_id: req.user.user_id }
+                                }
+                            }
+                        },
+                        passengers: {
+                            createMany: {
+                                data: passengers,
+                            }
+                        }
+                    },
+                    include: {
+                        transaction: true
+                    }
+                });
+        
+                if (!ticket) {
+                    throw new Error('Ticket fail to create');
+                }
+        
+                return {
+                    ticket_id: ticket.ticket_id,
+                    transaction_id: ticket.transaction.transaction_id
+                };
+            });
+        
             res.status(200).json({
                 status: true,
                 message: 'Ticket Successfully Created',
-                data: {ticket_id: ticket.ticket_id, transaction_id: ticket.transaction.transaction_id}
-            })
+                data: result
+            });
         } catch (err) {
+            if (err.message === 'Orderer is failed to create/update' || err.message === 'Ticket fail to create') {
+                return res.status(400).json({
+                    status: false,
+                    message: err.message,
+                    data: null
+                });
+            }
+            
             next(err)
         }
     }
