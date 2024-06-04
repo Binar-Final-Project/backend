@@ -102,6 +102,7 @@ model passengers {
   passenger_id Int @id @default(autoincrement())
   name String
   email String
+  title String
   passenger_type String
   phone_number String
   date_of_birth DateTime @db.Date //example input (YYYY-MM-DD) "2024-05-21"
@@ -175,6 +176,3 @@ model airplanes {
   airline airlines @relation(fields: [airline_id], references: [airline_id])
   flight flights[]
 }
-
-
-

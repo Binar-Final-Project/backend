@@ -12,6 +12,8 @@ const flightRouter = require('./flight.routes')
 Router.use('/flights', flightRouter)
 const ticketRouter = require('./ticket.routes')
 Router.use('/tickets', ticketRouter)
+const notificationsRoute = require("./notification.routes");
+Router.use("/notifications", notificationsRoute);
 
 Router.get('/', (req,res) => {
     res.status(200).json({
