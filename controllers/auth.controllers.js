@@ -281,7 +281,7 @@ const changePassword = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
     try {
         const { name, phone_number } = req.body;
-        const { id } = req.user.user_id;
+        const id = req.user.user_id;
         await prisma.users.update({
             where: {
                 user_id: id
@@ -303,7 +303,7 @@ const updateProfile = async (req, res, next) => {
 
 const updatePassword = async(req, res, next) =>{
     const { old_password, new_password } =  req.body;
-    const { id } = req.user.user_id
+    const id = req.user.user_id
 
     try {
         const users = await prisma.users.findUnique({
@@ -351,7 +351,7 @@ const updatePassword = async(req, res, next) =>{
 
 const getProfile = async (req, res, next) => {
     try {
-        const { id } = req.user.user_id;
+        const id = req.user.user_id;
         const users = await prisma.users.findUnique({
             where: {
                 user_id: id
