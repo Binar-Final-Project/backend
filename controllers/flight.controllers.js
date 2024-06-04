@@ -17,6 +17,9 @@ module.exports = {
       sortBy = Prisma.sql([sortBy.toUpperCase()]);
       let sortOrder = req.query.sortOrder || "ASC";
       sortOrder = Prisma.sql([sortOrder.toUpperCase()]);
+      let page = req.query.page || 1
+      const limit = 10
+      const offset = (page-1)*limit
 
       const result = await prisma.$queryRaw`
         WITH purchased_ticket AS (
@@ -48,9 +51,10 @@ module.exports = {
           AND a_airport.code = ${arrival_code}
           AND f.class = ${seat_class}
           AND f.capacity - COALESCE(pt.count, 0) >= ${total_passenger}
-        ORDER BY ${sortBy} ${sortOrder};
+        ORDER BY ${sortBy} ${sortOrder}
+        LIMIT ${limit}
+        OFFSET ${offset};
       `;
-      console.log('test')
       let mapped = result.map(s => {
         let isFree = false
         if(s.free_baggage > 0){
