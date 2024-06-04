@@ -53,7 +53,11 @@ model transactions {
   transaction_id Int @id @default(autoincrement())
   total_price Int
   tax Int
-  payment_method String
+  payment_method String?
+  card_number String?
+  card_holder_name String?
+  cvv String?
+  expiry_date String?
   booking_code String @unique
   status transaction_status
   created_at DateTime @default(now())
@@ -84,7 +88,7 @@ model tickets {
 model orderers {
   orderer_id Int @id @default(autoincrement())
   name String
-  family_name String
+  family_name String?
   phone_number String
   email String
 
@@ -98,6 +102,7 @@ model passengers {
   passenger_id Int @id @default(autoincrement())
   name String
   email String
+  title String
   passenger_type String
   phone_number String
   date_of_birth DateTime @db.Date //example input (YYYY-MM-DD) "2024-05-21"
@@ -171,6 +176,3 @@ model airplanes {
   airline airlines @relation(fields: [airline_id], references: [airline_id])
   flight flights[]
 }
-
-
-
