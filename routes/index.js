@@ -1,6 +1,6 @@
 const Router = require('express').Router()
 const swaggerUi = require('swagger-ui-express')
-const docs = require('../docs/v3.json')
+const docs = require('../docs/v4.json')
 
 // Example routes
 // const ticketRoutes = require('./ticket.routes')
