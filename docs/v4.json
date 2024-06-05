@@ -965,19 +965,12 @@
         "parameters": [
           {
             "in": "query",
-            "name": "sortBy",
+            "name": "sort",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "price.asc"
             },
-            "description": "(price/duration/departure_time/arrival_time) - optional"
-          },
-          {
-            "in": "query",
-            "name": "sortOrder",
-            "schema": {
-              "type": "string"
-            },
-            "description": "(asc/desc) - optional"
+            "description": "(price/duration/departure_time/arrival_time).(asc/desc) optional"
           },
           {
             "in": "query",
