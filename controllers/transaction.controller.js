@@ -5,7 +5,7 @@ const history = async (req, res) => {
     try {
         const condition = {
             where: {
-                user_id: req.user.id
+                user_id: req.user.user_id
             },
             orderBy: {
                 ticket: {
@@ -89,7 +89,11 @@ const history = async (req, res) => {
             transaction.total_adult = transaction.ticket.total_adult;
             transaction.total_children = transaction.ticket.total_children;
             transaction.total_baby = transaction.ticket.total_baby;
-            transaction.passengers = transaction.ticket.passengers;
+            transaction.passengers = transaction.ticket.passengers.map(passenger => {
+                passenger.date_of_birth = passenger.date_of_birth.toISOString().split('T')[0];
+                passenger.valid_until = passenger.valid_until.toISOString().split('T')[0];
+                return passenger;                
+            });
             
             // departure_flight
             transaction.departure_flight = transaction.ticket.departure_flight;
@@ -97,6 +101,7 @@ const history = async (req, res) => {
             transaction.departure_flight.arrival_airport = transaction.ticket.departure_flight.arrival_airport.name;
             transaction.departure_flight.airplane_model = transaction.ticket.departure_flight.airplane.model;
             transaction.departure_flight.airline = transaction.ticket.departure_flight.airplane.airline.name;
+            transaction.departure_flight.flight_date = transaction.departure_flight.flight_date.split('T')[0];
             delete transaction.departure_flight.airplane;
 
             // arrival_flight
@@ -105,8 +110,12 @@ const history = async (req, res) => {
             transaction.arrival_flight.arrival_airport = transaction.ticket.arrival_flight.arrival_airport.name;
             transaction.arrival_flight.airplane_model = transaction.ticket.arrival_flight.airplane.model;
             transaction.arrival_flight.airline = transaction.ticket.arrival_flight.airplane.airline.name;
+            transaction.arrival_flight.flight_date = transaction.ticket.arrival_flight.flight_date.split('T')[0];
             delete transaction.arrival_flight.airplane;
 
+
+            delete transaction.created_at;
+            delete transaction.updated_at;
             delete transaction.ticket;
             return transaction;
         });
