@@ -13,10 +13,18 @@ module.exports = {
       const { departure_code, arrival_code, departure_date, total_passenger } = req.body;
       const seat_class = req.body.seat_class.toUpperCase();
 
-      let sortBy = req.query.sortBy || "PRICE";
+      let sort = req.query.sort || "PRICE.ASC";
+
+      let sortBy;
+      let sortOrder;
+      if(typeof sort === 'string'){
+        sortBy = sort.split('.')[0]
+        sortOrder = sort.split('.')[1]
+      }
+
       sortBy = Prisma.sql([sortBy.toUpperCase()]);
-      let sortOrder = req.query.sortOrder || "ASC";
       sortOrder = Prisma.sql([sortOrder.toUpperCase()]);
+      
       let page = req.query.page || 1
       const limit = 10
       const offset = (page-1)*limit
