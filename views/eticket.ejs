@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="eticket.css">
+</head>
+<body>
+    <div class="ticket-container">
+        <div class="header">
+            <h1>BiFlight</h1>
+        </div>
+        <div class="clear"></div>
+        <div class="title">
+            <h2 class="title-1">YOUR TICKET-ITINERARY</h2>
+            <p class="title-2">YOUR BOOKING NUMBER : <%= bookingNumber %></p>
+        </div>
+        <table class="ticket-info">
+            <tr>
+                <th>Flight</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Class/Status</th>
+            </tr>
+            <% flights.forEach(function(flight) { %>
+                <tr>
+                    <td><%= flight.number %></td>
+                    <td><%= flight.dept_airport %> &ensp; <%= flight.dept_time %></td>
+                    <td><%= flight.arr_airport %> &ensp; <%= flight.arr_time %></td>
+                    <td><%= flight.class %></td>
+                </tr>
+            <% }); %>
+        </table>
+        <table class="passenger-info">
+            <tr>
+                <th>Passenger Name</th>
+                <th>Identity Number</th>
+                <th>Nationality</th>
+            </tr>
+            <% passengers.forEach(function(passenger) { %>
+                <tr>
+                    <td><%= passenger.name %>/<%= passenger.title %></td>
+                    <td><%= passenger.identity_number %></td>
+                    <td><%= passenger.nationality %></td>
+                </tr>
+            <% }); %>
+        </table>
+        <table class="purchase-info">
+            <tr>
+                <th>Purchase Description</th>
+                <th>Price</th>
+            </tr>
+            <% purchases.forEach(function(purchase) { %>
+                <tr>
+                    <td><%= purchase.description %></td>
+                    <td><%= purchase.price %></td>
+                </tr>
+            <% }); %>
+            <tr>
+                <td><strong>TOTAL FARE</strong></td>
+                <td><strong><%= totalFare %></strong></td>
+            </tr>
+        </table>
+        <div class="footer">
+            <p>Ticket is non-endorseable, non-refundable.</p>
+            <p>Changes allowed, subject to availability.</p>
+            <p>No later than 2 hours before departure.</p>
+            <p>Please make sure you fulfill all fare restrictions.</p>
+            <p>Have a pleasant flight!</p>
+            <p>Paid by Credit Card XXXX-XXXX-XXXX-<%= cardNumber %></p>
+        </div>
+    </div>
+</body>
+</html>
