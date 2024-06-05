@@ -1,15 +1,17 @@
 const Router = require('express').Router()
 const swaggerUi = require('swagger-ui-express')
-const docs = require('../docs/v2.json')
+const docs = require('../docs/v4.json')
 
 // Example routes
 // const ticketRoutes = require('./ticket.routes')
 // Router.use('/tickets', ticketRoutes)
 
-const authRoutes = require('./auth.routes')
-Router.use('/users', authRoutes)
+const authRouter = require('./auth.routes')
+Router.use('/users', authRouter)
 const flightRouter = require('./flight.routes')
 Router.use('/flights', flightRouter)
+const ticketRouter = require('./ticket.routes')
+Router.use('/tickets', ticketRouter)
 const notificationsRoute = require("./notification.routes");
 Router.use("/notifications", notificationsRoute);
 

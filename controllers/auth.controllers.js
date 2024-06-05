@@ -161,7 +161,10 @@ const login = async (req, res, next) => {
             });
         }
 
-        const token = jwt.sign({ id: users.user_id }, JWT_SECRET, { expiresIn: '1h' });
+        delete users.otp_number
+        delete users.password
+        console.log('user login:', users)
+        const token = jwt.sign({...users}, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({
             status: true,
@@ -278,7 +281,7 @@ const changePassword = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
     try {
         const { name, phone_number } = req.body;
-        const { id } = req.user;
+        const id = req.user.user_id;
         await prisma.users.update({
             where: {
                 user_id: id
@@ -299,10 +302,8 @@ const updateProfile = async (req, res, next) => {
 }
 
 const updatePassword = async(req, res, next) =>{
-    const { oldPassword, newPassword } =  req.body;
-    const { id } = req.user
-
-
+    const { old_password, new_password } =  req.body;
+    const id = req.user.user_id
 
     try {
         const users = await prisma.users.findUnique({
@@ -318,7 +319,7 @@ const updatePassword = async(req, res, next) =>{
             });
         }
 
-        const hashedOldPassword = crypto.SHA256(oldPassword).toString();
+        const hashedOldPassword = crypto.SHA256(old_password).toString();
 
         if (users.password !== hashedOldPassword) {
             return res.status(400).json({
@@ -327,7 +328,7 @@ const updatePassword = async(req, res, next) =>{
             });
         }
 
-        const hashedNewPassword = crypto.SHA256(newPassword).toString();
+        const hashedNewPassword = crypto.SHA256(new_password).toString();
 
         await prisma.users.update({
             where: {
@@ -350,7 +351,7 @@ const updatePassword = async(req, res, next) =>{
 
 const getProfile = async (req, res, next) => {
     try {
-        const { id } = req.user;
+        const id = req.user.user_id;
         const users = await prisma.users.findUnique({
             where: {
                 user_id: id
@@ -426,4 +427,16 @@ const resendOTP = async (req,res,next) => {
     }
 }
 
-module.exports = { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};
+const whoami = async (req, res, next) => {
+    try {
+        res.json({
+            status: true,
+            message: 'OK',
+            data: req.user
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};
