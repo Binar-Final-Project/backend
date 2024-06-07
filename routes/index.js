@@ -6,16 +6,16 @@ const docs = require("../docs/v4.json");
 // const ticketRoutes = require('./ticket.routes')
 // Router.use('/tickets', ticketRoutes)
 
-const authRouter = require("./auth.routes");
-Router.use("/users", authRouter);
-const flightRouter = require("./flight.routes");
-Router.use("/flights", flightRouter);
-const ticketRouter = require("./ticket.routes");
-Router.use("/tickets", ticketRouter);
-const notificationsRouter = require("./notification.routes");
-Router.use("/notifications", notificationsRouter);
-const paymentRouter = require("./payment.routes");
-Router.use("/transactions", paymentRouter);
+const authRouter = require('./auth.routes')
+Router.use('/users', authRouter)
+const flightRouter = require('./flight.routes')
+Router.use('/flights', flightRouter)
+const transactionsRouter = require('./transactions.routes')
+Router.use('/transactions', transactionsRouter)
+const ticketRouter = require('./ticket.routes')
+Router.use('/tickets', ticketRouter)
+const notificationsRoute = require("./notification.routes");
+Router.use("/notifications", notificationsRoute);
 
 Router.get("/", (req, res) => {
   res.status(200).json({
