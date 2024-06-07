@@ -14,8 +14,8 @@ const ticketRouter = require("./ticket.routes");
 Router.use("/tickets", ticketRouter);
 const notificationsRouter = require("./notification.routes");
 Router.use("/notifications", notificationsRouter);
-const transactionsRouter = require("./transaction.routes");
-Router.use("/transactions", transactionsRouter);
+const paymentRouter = require("./payment.routes");
+Router.use("/transactions", paymentRouter);
 
 Router.get("/", (req, res) => {
   res.status(200).json({
