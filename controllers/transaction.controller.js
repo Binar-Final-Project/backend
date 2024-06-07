@@ -1,137 +1,154 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const {getHTML} = require('../libs/mailer')
+const {getHTML, sendTicket} = require('../libs/mailer')
 const path = require('path')
 const fs = require('fs')
 const {generatePdf} = require('../libs/pdf')
 
+const rupiah = (number)=>{
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR"
+  }).format(number);
+}
+
 const history = async (req, res) => {
   try {
-    const condition = {
-      where: {
-        user_id: req.user.user_id,
-      },
-      orderBy: {
-        ticket: {
-          departure_flight: {
-            flight_date: "desc",
+      const condition = {
+          where: {
+              user_id: req.user.user_id
           },
-        },
-      },
-      include: {
-        ticket: {
+          orderBy: {
+              ticket: {
+                  departure_flight: {
+                      flight_date: 'desc'
+                  }
+              }
+          },
           include: {
-            departure_flight: {
-              include: {
-                departure_airport: true,
-                arrival_airport: true,
-                airplane: {
+              ticket: {
                   include: {
-                    airline: true,
-                  },
-                },
-              },
-            },
-            arrival_flight: {
-              include: {
-                departure_airport: true,
-                arrival_airport: true,
-                airplane: {
-                  include: {
-                    airline: true,
-                  },
-                },
-              },
-            },
-            passengers: true,
-          },
-        },
-      },
-    };
-
-    if (req.query.q) {
-      condition.where = {
-        ...condition.where,
-        booking_code: {
-          // case-insensitive search
-          contains: req.query.q,
-          mode: "insensitive",
-        },
+                      departure_flight : {
+                          include : {
+                              departure_airport : true,
+                              arrival_airport : true,
+                              airplane : {
+                                  include: {
+                                      airline: true
+                                  }
+                              }
+                          }
+                      },
+                      arrival_flight : {
+                          include : {
+                              departure_airport : true,
+                              arrival_airport : true,
+                              airplane : {
+                                  include: {
+                                      airline: true
+                                  }
+                              }
+                          }
+                      },
+                      passengers : true
+                  }
+              }
+          }
       };
-    }
 
-    if (req.query.lt && req.query.gte) {
-      condition.where = {
-        AND: [
-          condition.where,
-          {
-            ticket: {
-              departure_flight: {
-                flight_date: {
-                  lte: req.query.lt,
-                },
-              },
-            },
-          },
-          {
-            ticket: {
-              departure_flight: {
-                flight_date: {
-                  gte: req.query.gte,
-                },
-              },
-            },
-          },
-        ],
+      if(req.query.q) {
+          condition.where = {
+              ...condition.where,
+              booking_code : {
+                  // case-insensitive search
+                  contains: req.query.q,
+                  mode: 'insensitive'
+              }
+          };
       };
-    }
 
-    const transactions = await prisma.transactions.findMany(condition);
+      if(req.query.lt && req.query.gte) {
+          condition.where = {
+              AND: [
+                  condition.where,
+                  {
+                      ticket: {
+                          departure_flight :{
+                              flight_date: {
+                                  lte: req.query.lt
+                              }
+                          }
+                      }
+                  },
+                  {
+                      ticket: {
+                          departure_flight :{
+                              flight_date: {
+                                  gte: req.query.gte
+                              }
+                          }
+                      }
+                  },
+              ]
+          }
 
-    transactions.map((transaction) => {
-      transaction.total_adult = transaction.ticket.total_adult;
-      transaction.total_children = transaction.ticket.total_children;
-      transaction.total_baby = transaction.ticket.total_baby;
-      transaction.passengers = transaction.ticket.passengers;
+      }
 
-      // departure_flight
-      transaction.departure_flight = transaction.ticket.departure_flight;
-      transaction.departure_flight.departure_airport =
-        transaction.ticket.departure_flight.departure_airport.name;
-      transaction.departure_flight.arrival_airport =
-        transaction.ticket.departure_flight.arrival_airport.name;
-      transaction.departure_flight.airplane_model =
-        transaction.ticket.departure_flight.airplane.model;
-      transaction.departure_flight.airline =
-        transaction.ticket.departure_flight.airplane.airline.name;
-      delete transaction.departure_flight.airplane;
+      const transactions = await prisma.transactions.findMany(condition);
+      
+      transactions.map(transaction => {
+          transaction.total_adult = transaction.ticket.total_adult;
+          transaction.total_children = transaction.ticket.total_children;
+          transaction.total_baby = transaction.ticket.total_baby;
+          transaction.passengers = transaction.ticket.passengers.map(passenger => {
+              passenger.date_of_birth = passenger.date_of_birth.toISOString().split('T')[0];
+              passenger.valid_until = passenger.valid_until.toISOString().split('T')[0];
+              return passenger;                
+          });
+          
+          // departure_flight
+          if(transaction?.ticket?.departure_flight){
+              transaction.departure_flight = transaction.ticket.departure_flight;
+              transaction.departure_flight.departure_airport = transaction.ticket.departure_flight.departure_airport.name;
+              transaction.departure_flight.arrival_airport = transaction.ticket.departure_flight.arrival_airport.name;
+              transaction.departure_flight.airplane_model = transaction.ticket.departure_flight.airplane.model;
+              transaction.departure_flight.airline = transaction.ticket.departure_flight.airplane.airline.name;
+              transaction.departure_flight.flight_date = transaction.departure_flight.flight_date.split('T')[0];
+              delete transaction.departure_flight.airplane;
+          }else{
+              transaction.departure_flight = null;
+          }
 
-      // arrival_flight
-      transaction.arrival_flight = transaction.ticket.arrival_flight;
-      transaction.arrival_flight.departure_airport =
-        transaction.ticket.arrival_flight.departure_airport.name;
-      transaction.arrival_flight.arrival_airport =
-        transaction.ticket.arrival_flight.arrival_airport.name;
-      transaction.arrival_flight.airplane_model =
-        transaction.ticket.arrival_flight.airplane.model;
-      transaction.arrival_flight.airline =
-        transaction.ticket.arrival_flight.airplane.airline.name;
-      delete transaction.arrival_flight.airplane;
+          // arrival_flight
+          if(transaction?.ticket?.arrival_flight){
+              transaction.return_flight = transaction.ticket.arrival_flight;
+              transaction.return_flight.departure_airport = transaction.ticket.arrival_flight.departure_airport.name;
+              transaction.return_flight.arrival_airport = transaction.ticket.arrival_flight.arrival_airport.name;
+              transaction.return_flight.airplane_model = transaction.ticket.arrival_flight.airplane.model;
+              transaction.return_flight.airline = transaction.ticket.arrival_flight.airplane.airline.name;
+              transaction.return_flight.flight_date = transaction.ticket.arrival_flight.flight_date.split('T')[0];
+              delete transaction.return_flight.airplane;
+          }else{
+              transaction.return_flight = null;
+          }
 
-      delete transaction.ticket;
-      return transaction;
-    });
 
-    res.status(200).json({
-      status: true,
-      message: "OK",
-      data: transactions,
-    });
+          delete transaction.created_at;
+          delete transaction.updated_at;
+          delete transaction.ticket;
+          return transaction;
+      });
+
+      res.status(200).json({
+          status: true,
+          message: "OK",
+          data: transactions
+      });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Something went wrong" });
+      console.log (error);
+      res.status(500).json({ message: 'Something went wrong' });
   }
-};
+}
 
 const printTicket = async (req, res, next) => {
   try {
@@ -211,7 +228,7 @@ const printTicket = async (req, res, next) => {
 
     let content = {
       bookingNumber: data.booking_code,
-      totalFare: data.total_price,
+      totalFare: rupiah(data.total_price),
       tax: data.tax,
       paymentMethod: data.payment_method,
       cardNumber: last4,
@@ -220,7 +237,9 @@ const printTicket = async (req, res, next) => {
           number: data.ticket.departure_flight.flight_number,
           class: data.ticket.departure_flight.class,
           dept_airport: data.ticket.departure_flight.departure_airport.name,
+          dept_code: data.ticket.departure_flight.departure_airport.code,
           arr_airport: data.ticket.departure_flight.arrival_airport.name,
+          arr_code: data.ticket.departure_flight.arrival_airport.code,
           dept_time: data.ticket.departure_flight.departure_time,
           arr_time: data.ticket.departure_flight.arrival_time,
           date: data.ticket.departure_flight.flight_date,
@@ -232,11 +251,11 @@ const printTicket = async (req, res, next) => {
       purchases: [
         {
           description: "Fare",
-          price: data.total_price - data.tax,
+          price: rupiah(data.total_price - data.tax),
         },
         {
           description: "Tax (10%)",
-          price: data.tax,
+          price: rupiah(data.tax),
         },
         {
           description: "Number of Passengers",
@@ -253,7 +272,9 @@ const printTicket = async (req, res, next) => {
         number: data.ticket.arrival_flight.flight_number,
         class: data.ticket.arrival_flight.class,
         dept_airport: data.ticket.arrival_flight.departure_airport.name,
+        dept_code: data.ticket.arrival_flight.departure_airport.code,
         arr_airport: data.ticket.arrival_flight.arrival_airport.name,
+        arr_code: data.ticket.arrival_flight.arrival_airport.code,
         dept_time: data.ticket.arrival_flight.departure_time,
         arr_time: data.ticket.arrival_flight.arrival_time,
         date: data.ticket.arrival_flight.flight_date,
@@ -264,9 +285,9 @@ const printTicket = async (req, res, next) => {
 
     const htmlContent = await getHTML("eticket.ejs", content);
 
-    const filePath = path.join(__dirname, "eticket.pdf");
+    const fileName = `eticket-${content.bookingNumber}${Date.now().toLocaleString()}.pdf`
 
-    generatePdf(htmlContent, (error, pdfBuffer) => {
+    generatePdf(htmlContent, async (error, pdfBuffer) => {
       if (error) {
         // Handle error
         return res.status(500).json({ message: "Error generating PDF" });
@@ -276,14 +297,8 @@ const printTicket = async (req, res, next) => {
       res.status(202).json({ message: "E-ticket will sent to your email!" });
 
       // Handle PDF buffer asynchronously (e.g., save to disk)
-      fs.writeFile(filePath, pdfBuffer, (writeFileError) => {
-        if (writeFileError) {
-          console.error("Error writing PDF to file:", writeFileError);
-          // Handle write error if needed
-        } else {
-          console.log("PDF saved successfully");
-        }
-      });
+      await sendTicket(req.user.email, pdfBuffer, fileName)
+      console.log('Success')
     });
   } catch (err) {
     next(err);

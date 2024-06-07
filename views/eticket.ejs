@@ -24,8 +24,8 @@
             <% flights.forEach(function(flight) { %>
                 <tr>
                     <td><%= flight.number %></td>
-                    <td><%= flight.dept_airport %> &ensp; <%= flight.dept_time %></td>
-                    <td><%= flight.arr_airport %> &ensp; <%= flight.arr_time %></td>
+                    <td><%= flight.dept_airport %> (<%= flight.dept_code %>) - <%= flight.dept_time %></td>
+                    <td><%= flight.arr_airport %> (<%= flight.arr_code %>) - <%= flight.arr_time %></td>
                     <td><%= flight.class %></td>
                 </tr>
             <% }); %>
@@ -38,7 +38,7 @@
             </tr>
             <% passengers.forEach(function(passenger) { %>
                 <tr>
-                    <td><%= passenger.name %>/<%= passenger.title %></td>
+                    <td><%= passenger.title %> <%= passenger.name %></td>
                     <td><%= passenger.identity_number %></td>
                     <td><%= passenger.nationality %></td>
                 </tr>
