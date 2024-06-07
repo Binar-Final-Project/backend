@@ -15,7 +15,7 @@ Router.use("/tickets", ticketRouter);
 const notificationsRouter = require("./notification.routes");
 Router.use("/notifications", notificationsRouter);
 const paymentRouter = require("./payment.routes");
-Router.use("/transactions/pay", paymentRouter);
+Router.use("/transactions", paymentRouter);
 
 Router.get("/", (req, res) => {
   res.status(200).json({
