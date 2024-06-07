@@ -10,6 +10,8 @@ const authRouter = require('./auth.routes')
 Router.use('/users', authRouter)
 const flightRouter = require('./flight.routes')
 Router.use('/flights', flightRouter)
+const transactionsRouter = require('./transactions.routes')
+Router.use('/transactions', transactionsRouter)
 const ticketRouter = require('./ticket.routes')
 Router.use('/tickets', ticketRouter)
 const notificationsRoute = require("./notification.routes");
