@@ -5,7 +5,9 @@ const {
 } = require("../controllers/transaction.controller");
 const { verifyToken } = require("../libs/middleware");
 
+Router.post("/pay", verifyToken, processPayment);
 Router.get("/history", verifyToken, history);
 Router.get("/:code", verifyToken, printTicket);
 
+//
 module.exports = Router;

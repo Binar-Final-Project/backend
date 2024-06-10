@@ -30,9 +30,7 @@
   "paths": {
     "/api/v1/users/register": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -139,9 +137,7 @@
     },
     "/api/v1/users/verification-otp": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -235,9 +231,7 @@
     },
     "/api/v1/users/login": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -333,9 +327,7 @@
     },
     "/api/v1/users/sent-forgot-password": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -419,9 +411,7 @@
     },
     "/api/v1/users/reset-password": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "parameters": [
           {
             "in": "query",
@@ -520,9 +510,7 @@
     },
     "/api/v1/users/resend-otp": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -606,9 +594,7 @@
     },
     "/api/v1/users/update-profile": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "description": "Update profile API",
         "security": [
           {
@@ -725,9 +711,7 @@
     },
     "/api/v1/users/update-password": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "description": "Update profile API",
         "security": [
           {
@@ -846,9 +830,7 @@
     },
     "/api/v1/users/profile": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "security": [
           {
             "bearerAuth": []
@@ -958,9 +940,7 @@
     },
     "/api/v1/flights": {
       "post": {
-        "tags": [
-          "flights"
-        ],
+        "tags": ["flights"],
         "description": "Ticket Searching API",
         "parameters": [
           {
@@ -1022,16 +1002,24 @@
                       "example": "OK"
                     },
                     "data": {
-                      "type": "array",
-                      "items": {
-                        "oneOf": [
-                          {
-                            "$ref": "#/components/schemas/Flight"
-                          },
-                          {
-                            "$ref": "#/components/schemas/Flight"
+                      "type": "object",
+                      "properties": {
+                        "total_page": {
+                          "example": 3
+                        },
+                        "flights": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "$ref": "#/components/schemas/Flight"
+                              },
+                              {
+                                "$ref": "#/components/schemas/Flight"
+                              }
+                            ]
                           }
-                        ]
+                        }
                       }
                     }
                   }
@@ -1086,9 +1074,7 @@
     },
     "/api/v1/tickets": {
       "post": {
-        "tags": [
-          "tickets"
-        ],
+        "tags": ["tickets"],
         "description": "API ini dipake pas simpan data diri passengers",
         "security": [
           {
@@ -1241,9 +1227,7 @@
     },
     "/api/v1/notifications/{id}": {
       "get": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "security": [
           {
             "bearerAuth": []
@@ -1362,9 +1346,7 @@
     },
     "/api/v1/transactions": {
       "get": {
-        "tags": [
-          "transactions"
-        ],
+        "tags": ["transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1500,9 +1482,7 @@
     },
     "/api/v1/transactions/print/{id}": {
       "get": {
-        "tags": [
-          "transactions"
-        ],
+        "tags": ["transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1611,9 +1591,7 @@
     },
     "/api/v1/transactions/pay": {
       "post": {
-        "tags": [
-          "transactions"
-        ],
+        "tags": ["transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1990,6 +1968,18 @@
           },
           "arrival_code": {
             "example": "DPS"
+          },
+          "departure_airport": {
+            "example": "Soekarno Hatta"
+          },
+          "arrival_airport": {
+            "example": "Ngurah Rai"
+          },
+          "departure_city": {
+            "example": "Jakarta"
+          },
+          "arrival_city": {
+            "example": "Bali"
           },
           "departure_terminal": {
             "example": "Terminal 1A"
