@@ -162,6 +162,7 @@ const processPayment = async (req, res, next) => {
     cvv,
     expiry_date,
   } = req.body;
+
   if (
     !booking_code ||
     !payment_method ||
@@ -192,13 +193,20 @@ const processPayment = async (req, res, next) => {
 
     const updatedTransaction = await prisma.transactions.update({
       where: { booking_code },
-      data: { status: "ISSUED" },
+      data: {
+        status: "ISSUED",
+        payment_method,
+        card_number,
+        card_holder_name,
+        cvv,
+        expiry_date,
+      },
     });
 
     res.status(200).json({
       status: true,
       message: "Payment Successful",
-      data: { status: "ISSUED" },
+      data: { status: updatedTransaction.status },
     });
   } catch (error) {
     next(error);
