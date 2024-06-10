@@ -24,5 +24,5 @@ Router.get("/", (req, res) => {
 });
 
 Router.use("/docs", swaggerUi.serve, swaggerUi.setup(docs));
-
+  
 module.exports = Router;
