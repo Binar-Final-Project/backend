@@ -1,6 +1,6 @@
-const Router = require('express').Router()
-const swaggerUi = require('swagger-ui-express')
-const docs = require('../docs/v4.json')
+const Router = require("express").Router();
+const swaggerUi = require("swagger-ui-express");
+const docs = require("../docs/v4.json");
 
 // Example routes
 // const ticketRoutes = require('./ticket.routes')
@@ -17,13 +17,13 @@ Router.use('/tickets', ticketRouter)
 const notificationsRoute = require("./notification.routes");
 Router.use("/notifications", notificationsRoute);
 
-Router.get('/', (req,res) => {
-    res.status(200).json({
-        status: true,
-        message: 'Connected to Server!'
-    })
-})
+Router.get("/", (req, res) => {
+  res.status(200).json({
+    status: true,
+    message: "Connected to Server!",
+  });
+});
 
-Router.use('/docs', swaggerUi.serve, swaggerUi.setup(docs))
+Router.use("/docs", swaggerUi.serve, swaggerUi.setup(docs));
 
-module.exports = Router
+module.exports = Router;
