@@ -1,6 +1,7 @@
 const Router = require("express").Router();
 const {
   history,
+  processPayment,
   printTicket,
 } = require("../controllers/transaction.controller");
 const { verifyToken } = require("../libs/middleware");
