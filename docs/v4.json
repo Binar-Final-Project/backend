@@ -1225,7 +1225,7 @@
         }
       }
     },
-    "/api/v1/notifications/{id}": {
+    "/api/v1/notifications": {
       "get": {
         "tags": ["notifications"],
         "security": [
@@ -1234,16 +1234,6 @@
           }
         ],
         "description": "Get all notifications data",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully",
@@ -1891,7 +1881,7 @@
           },
           "created_at": {
             "type": "string",
-            "example": "2012-07-10T14:58:00.000Z"
+            "example": "2012-07-10"
           }
         }
       },
