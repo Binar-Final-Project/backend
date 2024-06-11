@@ -1,8 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-getNotificationById = async (req, res, next) => {
-  const { id } = req.params;
+getNotification = async (req, res, next) => {
+  const id = req.user.user_id;
   const { status } = req.query; 
 
   try {
@@ -51,4 +51,4 @@ getNotificationById = async (req, res, next) => {
   }
 };
 
-module.exports = { getNotificationById };
+module.exports = { getNotification };
