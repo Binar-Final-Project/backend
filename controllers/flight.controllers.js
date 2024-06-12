@@ -15,7 +15,11 @@ module.exports = {
 
       const sortFilter = ['price', 'departure_time', 'arrival_time', 'duration', 'asc', 'desc']
 
-      let sort = req.query.sort || "PRICE.ASC";
+      let sort;
+      if(req.query.sort === undefined || req.query.page === 'undefined'){
+        sort = "PRICE.ASC"
+      }
+      sort = req.query.sort || "PRICE.ASC";
 
       let sortBy;
       let sortOrder;
@@ -35,7 +39,11 @@ module.exports = {
       sortBy = Prisma.sql([sortBy.toUpperCase()]);
       sortOrder = Prisma.sql([sortOrder.toUpperCase()]);
       
-      let page = req.query.page || 1
+      let page;
+      if(req.query.page === undefined || req.query.page === 'undefined'){
+        page = 1
+      }
+      page = req.query.page || 1
       const limit = 10
       const offset = (page-1)*limit
 
