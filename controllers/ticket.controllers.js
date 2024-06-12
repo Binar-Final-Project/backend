@@ -123,6 +123,15 @@ module.exports = {
                 if (!ticket) {
                     throw new Error('Ticket fail to create');
                 }
+
+                await prisma.notifications.create({
+                    data: {
+                        title: 'Ticket created successfully',
+                        description: `Please complete your payment [${ticket.transaction.booking_code}]`,
+                        user_id: req.user.user_id,
+                        status: 'unread'
+                    }
+                })
         
                 return {
                     ticket_id: ticket.ticket_id,

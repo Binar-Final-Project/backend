@@ -5,4 +5,6 @@ const { verifyToken } = require('../libs/middleware');
 
 router.get('/', verifyToken ,notificationController.getNotification);
 
+router.put('/:id', verifyToken, notificationController.updateNotification)
+
 module.exports = router;
