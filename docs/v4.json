@@ -1334,6 +1334,110 @@
         }
       }
     },
+    "/api/v1/notifications/:id": {
+      "put": {
+        "tags": ["notifications"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Update notifications data",
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Updated!"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "notification_status": {
+                          "example": "read"
+                        } 
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Notification not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/transactions": {
       "get": {
         "tags": ["transactions"],
