@@ -49,7 +49,7 @@ module.exports = {
         try {
             let {flights, total_adult, total_children, total_baby, orderer, passengers} = req.body
 
-            if(!flights.length || total_adult<1 || total_children<0 || total_baby<0 || !Object.keys(orderer).length || !passengers.length){
+            if(!flights | !flights.length || total_adult<1 || total_children<0 || total_baby<0 || !Object.keys(orderer).length || !passengers.length){
                 res.status(400).json({
                     status: false,
                     message: 'All fields are required!',
