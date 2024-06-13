@@ -292,6 +292,15 @@ const updateProfile = async (req, res, next) => {
             }
         });
 
+        await prisma.notifications.create({
+            data: {
+                title: 'Profile Update successfully',
+                description: `update profile succesfully`,
+                user_id: req.user.user_id,
+                status: 'unread'
+            }
+        });
+
         res.json({
             status: true,
             message: 'Profile updated successfully'
@@ -302,7 +311,7 @@ const updateProfile = async (req, res, next) => {
 }
 
 const updatePassword = async(req, res, next) =>{
-    const { old_password, new_password } =  req.body;
+    const { oldPassword, newPassword } =  req.body;
     const id = req.user.user_id
 
     try {
@@ -319,7 +328,7 @@ const updatePassword = async(req, res, next) =>{
             });
         }
 
-        const hashedOldPassword = crypto.SHA256(old_password).toString();
+        const hashedOldPassword = crypto.SHA256(oldPassword).toString();
 
         if (users.password !== hashedOldPassword) {
             return res.status(400).json({
@@ -328,7 +337,7 @@ const updatePassword = async(req, res, next) =>{
             });
         }
 
-        const hashedNewPassword = crypto.SHA256(new_password).toString();
+        const hashedNewPassword = crypto.SHA256(newPassword).toString();
 
         await prisma.users.update({
             where: {
@@ -336,6 +345,15 @@ const updatePassword = async(req, res, next) =>{
             },
             data: {
                 password: hashedNewPassword
+            }
+        });
+
+        await prisma.notifications.create({
+            data: {
+                title: 'Password Update successfully',
+                description: `update password succesfully`,
+                user_id: req.user.user_id,
+                status: 'unread'
             }
         });
 
