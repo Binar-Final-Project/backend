@@ -55,6 +55,15 @@ updateNotification = async (req,res,next) => {
   try {
     const notif_id = +req.params.id
 
+    const isRead = await prisma.notifications.findUnique({where: {notification_id: notif_id}})
+
+    if(isRead.status === 'read'){
+      return res.status(200).json({
+        status: true,
+        message: 'Notification has been read'
+      })
+    }
+
     const result = await prisma.notifications.update({
       where: {notification_id: notif_id},
       data: {

@@ -1087,7 +1087,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "flight_id": {
+                  "flights": {
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -1343,6 +1343,16 @@
           }
         ],
         "description": "Update notifications data",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully",
@@ -2129,7 +2139,8 @@
             "example": null
           },
           "phone_number": {
-            "example": 8123182381
+            "example": 8123182381,
+            "type": "string"
           },
           "email": {
             "example": "doe@gmail.com"
@@ -2145,11 +2156,15 @@
           "email": {
             "example": "john@gmail.com"
           },
+          "title": {
+            "example": "Mr."
+          },
           "passenger_type": {
             "example": "adult"
           },
           "phone_number": {
-            "example": 8128339122
+            "example": 8128339122,
+            "type": "string"
           },
           "date_of_birth": {
             "example": "2000-04-14"
@@ -2158,7 +2173,8 @@
             "example": "Indonesia"
           },
           "identity_number": {
-            "example": 1234213121323
+            "example": 1234213121323,
+            "type": "string"
           },
           "issuing_country": {
             "example": "Indonesia"
