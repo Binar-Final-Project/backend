@@ -1,0 +1,67 @@
+html {
+    -webkit-print-color-adjust: exact;
+}
+
+@page {
+    size: 7in 9.25in;
+    margin-top: -40px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+.ticket-container {
+    border: 1px solid #000;
+    width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+.header {
+    background: rgb(42,98,154);
+    background: linear-gradient(90deg, rgba(42,98,154,1) 1%, rgba(64,162,227,1) 32%, rgba(134,182,246,1) 100%);
+    color: #fff;
+    padding: 10px;
+    text-align: right;
+}
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.title {
+  display: flex;
+  flex-direction: row;
+  padding: 5px;
+}
+
+.title-1{
+  display: flex;
+  align-items: center;
+}
+
+.title-2 {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.clear {
+    clear: both;
+}
+.ticket-info, .passenger-info, .purchase-info {
+    width: 100%;
+}
+.ticket-info th, .passenger-info th, .purchase-info th, .ticket-info td, .passenger-info td, .purchase-info td {
+    padding: 5px;
+    border: 1px solid #000;
+}
+.ticket-info th, .passenger-info th, .purchase-info th {
+    background-color: #f2f2f2;
+}
+.footer {
+    margin-top: 20px;
+    font-size: 10px;
+    margin-left: 73%;
+    align-items: right;
+}
