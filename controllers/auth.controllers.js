@@ -311,7 +311,7 @@ const updateProfile = async (req, res, next) => {
 }
 
 const updatePassword = async(req, res, next) =>{
-    const { oldPassword, newPassword } =  req.body;
+    const { old_password, new_password } =  req.body;
     const id = req.user.user_id
 
     try {
