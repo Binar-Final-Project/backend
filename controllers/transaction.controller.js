@@ -370,6 +370,14 @@ const printTicket = async (req, res, next) => {
       // Send initial response (e.g., processing started)
       res.status(202).json({ message: "E-ticket will sent to your email!" });
 
+      await prisma.notifications.create({
+        data: {
+          title: 'Your e-ticket has been sent',
+          description: 'Please check your email to find the e-ticket',
+          user_id: req.user.user_id,
+          status: 'unread'
+        }
+      })
       // Handle PDF buffer asynchronously (e.g., save to disk)
       await sendTicket(req.user.email, pdfBuffer, fileName)
       console.log('Success')
