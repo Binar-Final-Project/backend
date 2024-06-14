@@ -16,7 +16,6 @@ const ticketRouter = require('./ticket.routes')
 Router.use('/tickets', ticketRouter)
 const notificationsRoute = require("./notification.routes");
 Router.use("/notifications", notificationsRoute);
-
 Router.get("/", (req, res) => {
   res.status(200).json({
     status: true,
@@ -25,5 +24,5 @@ Router.get("/", (req, res) => {
 });
 
 Router.use("/docs", swaggerUi.serve, swaggerUi.setup(docs));
-
+  
 module.exports = Router;

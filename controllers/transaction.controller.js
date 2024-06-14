@@ -1,5 +1,16 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const {getHTML, sendTicket} = require('../libs/mailer')
+const path = require('path')
+const fs = require('fs')
+const {generatePdf} = require('../libs/pdf')
+
+const rupiah = (number)=>{
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR"
+  }).format(number);
+}
 
 const history = async (req, res) => {
   try {
@@ -213,4 +224,168 @@ const processPayment = async (req, res, next) => {
   }
 };
 
-module.exports = { history, processPayment };
+const printTicket = async (req, res, next) => {
+  try {
+    const { code } = req.params;
+
+    let data = await prisma.transactions.findUnique({
+      where: { booking_code: code },
+      select: {
+        user_id: true,
+        total_price: true,
+        tax: true,
+        booking_code: true,
+        card_number: true,
+        payment_method: true,
+        status: true,
+        ticket: {
+          select: {
+            total_adult: true,
+            total_baby: true,
+            total_children: true,
+            departure_flight: {
+              include: {
+                airplane: {
+                  include: {
+                    airline: true,
+                  },
+                },
+                departure_airport: true,
+                arrival_airport: true,
+              },
+            },
+            arrival_flight: {
+              include: {
+                airplane: {
+                  include: {
+                    airline: true,
+                  },
+                },
+                departure_airport: true,
+                arrival_airport: true,
+              },
+            },
+            passengers: true,
+          },
+        },
+      },
+    });
+
+    if (!data) {
+      return res.status(400).json({
+        status: false,
+        message: "Data not found",
+        data: null,
+      });
+    }
+
+    if(data.user_id !== req.user.user_id){
+      return res.status(400).json({
+        status: false,
+        message: "This is not yours",
+        data: null,
+      });
+    }
+
+    if (data.status !== "ISSUED") {
+      return res.status(400).json({
+        status: false,
+        message: "You haven't paid for the ticket yet",
+        data: null,
+      });
+    }
+
+    let last4 = data.card_number;
+    if (typeof last4 === "string") {
+      last4 = last4.slice(-4);
+    }
+
+    let content = {
+      bookingNumber: data.booking_code,
+      totalFare: rupiah(data.total_price),
+      tax: data.tax,
+      paymentMethod: data.payment_method,
+      cardNumber: last4,
+      flights: [
+        {
+          number: data.ticket.departure_flight.flight_number,
+          class: data.ticket.departure_flight.class,
+          dept_airport: data.ticket.departure_flight.departure_airport.name,
+          dept_code: data.ticket.departure_flight.departure_airport.code,
+          arr_airport: data.ticket.departure_flight.arrival_airport.name,
+          arr_code: data.ticket.departure_flight.arrival_airport.code,
+          dept_time: data.ticket.departure_flight.departure_time,
+          arr_time: data.ticket.departure_flight.arrival_time,
+          date: data.ticket.departure_flight.flight_date,
+          airplane: data.ticket.departure_flight.airplane.model,
+          airline: data.ticket.departure_flight.airplane.airline.short_name,
+        },
+      ],
+      passengers: data.ticket.passengers,
+      purchases: [
+        {
+          description: "Fare",
+          price: rupiah(data.total_price - data.tax),
+        },
+        {
+          description: "Tax (10%)",
+          price: rupiah(data.tax),
+        },
+        {
+          description: "Number of Passengers",
+          price:
+            data.ticket.total_adult +
+            data.ticket.total_children +
+            data.ticket.total_baby,
+        },
+      ],
+    };
+
+    if (data.ticket.arrival_flight) {
+      content.flights[1] = {
+        number: data.ticket.arrival_flight.flight_number,
+        class: data.ticket.arrival_flight.class,
+        dept_airport: data.ticket.arrival_flight.departure_airport.name,
+        dept_code: data.ticket.arrival_flight.departure_airport.code,
+        arr_airport: data.ticket.arrival_flight.arrival_airport.name,
+        arr_code: data.ticket.arrival_flight.arrival_airport.code,
+        dept_time: data.ticket.arrival_flight.departure_time,
+        arr_time: data.ticket.arrival_flight.arrival_time,
+        date: data.ticket.arrival_flight.flight_date,
+        airplane: data.ticket.arrival_flight.airplane.model,
+        airline: data.ticket.arrival_flight.airplane.airline.short_name,
+      };
+    }
+
+    const htmlContent = await getHTML("eticket.ejs", content);
+
+    const fileName = `eticket-${content.bookingNumber}${Date.now().toLocaleString()}.pdf`
+
+    generatePdf(htmlContent, async (error, pdfBuffer) => {
+      if (error) {
+        // Handle error
+        return res.status(500).json({ message: "Error generating PDF" });
+      }
+
+      // Send initial response (e.g., processing started)
+      res.status(202).json({ message: "E-ticket will sent to your email!" });
+
+      await prisma.notifications.create({
+        data: {
+          title: 'Your e-ticket has been sent',
+          description: 'Please check your email to find the e-ticket',
+          user_id: req.user.user_id,
+          status: 'unread'
+        }
+      })
+      // Handle PDF buffer asynchronously (e.g., save to disk)
+      await sendTicket(req.user.email, pdfBuffer, fileName)
+      console.log('Success')
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { history, processPayment, printTicket };
+
