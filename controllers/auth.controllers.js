@@ -292,6 +292,15 @@ const updateProfile = async (req, res, next) => {
             }
         });
 
+        await prisma.notifications.create({
+            data: {
+                title: 'Profile Update successfully',
+                description: `update profile succesfully`,
+                user_id: req.user.user_id,
+                status: 'unread'
+            }
+        });
+
         res.json({
             status: true,
             message: 'Profile updated successfully'
@@ -336,6 +345,15 @@ const updatePassword = async(req, res, next) =>{
             },
             data: {
                 password: hashedNewPassword
+            }
+        });
+
+        await prisma.notifications.create({
+            data: {
+                title: 'Password Update successfully',
+                description: `update password succesfully`,
+                user_id: req.user.user_id,
+                status: 'unread'
             }
         });
 
