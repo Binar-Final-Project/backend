@@ -388,3 +388,4 @@ const printTicket = async (req, res, next) => {
 };
 
 module.exports = { history, processPayment, printTicket };
+
