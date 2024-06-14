@@ -49,7 +49,7 @@ module.exports = {
         try {
             let {flights, total_adult, total_children, total_baby, orderer, passengers} = req.body
 
-            if(!flights.length || total_adult<1 || total_children<0 || total_baby<0 || !Object.keys(orderer).length || !passengers.length){
+            if(!flights | !flights.length || total_adult<1 || total_children<0 || total_baby<0 || !Object.keys(orderer).length || !passengers.length){
                 res.status(400).json({
                     status: false,
                     message: 'All fields are required!',
@@ -123,6 +123,15 @@ module.exports = {
                 if (!ticket) {
                     throw new Error('Ticket fail to create');
                 }
+
+                await prisma.notifications.create({
+                    data: {
+                        title: 'Ticket created successfully',
+                        description: `Please complete your payment [${ticket.transaction.booking_code}]`,
+                        user_id: req.user.user_id,
+                        status: 'unread'
+                    }
+                })
         
                 return {
                     ticket_id: ticket.ticket_id,

@@ -1,8 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-getNotificationById = async (req, res, next) => {
-  const { id } = req.params;
+getNotification = async (req, res, next) => {
+  const id = req.user.user_id;
   const { status } = req.query; 
 
   try {
@@ -51,4 +51,42 @@ getNotificationById = async (req, res, next) => {
   }
 };
 
-module.exports = { getNotificationById };
+updateNotification = async (req,res,next) => {
+  try {
+    const notif_id = +req.params.id
+
+    const isRead = await prisma.notifications.findUnique({where: {notification_id: notif_id}})
+
+    if(isRead.status === 'read'){
+      return res.status(200).json({
+        status: true,
+        message: 'Notification has been read'
+      })
+    }
+
+    const result = await prisma.notifications.update({
+      where: {notification_id: notif_id},
+      data: {
+        status: 'read'
+      }
+    })
+
+    if(!result) {
+      return res.status(400).json({
+        status: false,
+        message: 'Notification not found',
+        data: null
+      })
+    }
+
+    res.status(200).json({
+      status: true,
+      message: 'Updated!',
+      data: {notification_status: result.status}
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { getNotification, updateNotification };
