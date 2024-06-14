@@ -288,18 +288,18 @@ const changePassword = async (req, res, next) => {
 };
 
 const updateProfile = async (req, res, next) => {
-  try {
-    const { name, phone_number } = req.body;
-    const id = req.user.user_id;
-    await prisma.users.update({
-      where: {
-        user_id: id,
-      },
-      data: {
-        name,
-        phone_number,
-      },
-    });
+    try {
+        const { name, phone_number } = req.body;
+        const id = req.user.user_id;
+        await prisma.users.update({
+            where: {
+                user_id: id
+            },
+            data: {
+                name,
+                phone_number
+            }
+        });
 
     res.json({
       status: true,
@@ -339,14 +339,14 @@ const updatePassword = async (req, res, next) => {
 
     const hashedNewPassword = crypto.SHA256(new_password).toString();
 
-    await prisma.users.update({
-      where: {
-        user_id: id,
-      },
-      data: {
-        password: hashedNewPassword,
-      },
-    });
+        await prisma.users.update({
+            where: {
+                user_id: id
+            },
+            data: {
+                password: hashedNewPassword
+            }
+        });
 
     res.json({
       status: true,
