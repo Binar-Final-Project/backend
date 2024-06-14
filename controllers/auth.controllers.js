@@ -328,7 +328,7 @@ const updatePassword = async(req, res, next) =>{
             });
         }
 
-        const hashedOldPassword = crypto.SHA256(oldPassword).toString();
+        const hashedOldPassword = crypto.SHA256(old_password).toString();
 
         if (users.password !== hashedOldPassword) {
             return res.status(400).json({
@@ -337,7 +337,7 @@ const updatePassword = async(req, res, next) =>{
             });
         }
 
-        const hashedNewPassword = crypto.SHA256(newPassword).toString();
+        const hashedNewPassword = crypto.SHA256(new_password).toString();
 
         await prisma.users.update({
             where: {
