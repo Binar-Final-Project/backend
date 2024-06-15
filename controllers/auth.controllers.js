@@ -117,7 +117,7 @@ const verify = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'User verified!',
             data: {
@@ -166,7 +166,7 @@ const login = async (req, res, next) => {
         console.log('user login:', users)
         const token = jwt.sign({...users}, JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'User logged in!',
             data: {
@@ -209,7 +209,7 @@ const forgotPassword = async (req, res, next) => {
         
         const html = await getHTML('forgot-password.ejs', { link });
         await sendMail(email, 'Reset Password', html);
-        return res.json({
+        return res.status(200).json({
             status: true,
             message: 'Reset password link sent to your email',
             data: null
@@ -268,7 +268,7 @@ const changePassword = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'Password changed successfully',
             data: null
@@ -301,7 +301,7 @@ const updateProfile = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'Profile updated successfully'
         });
@@ -357,7 +357,7 @@ const updatePassword = async(req, res, next) =>{
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'Password updated successfully'
         });
@@ -381,7 +381,7 @@ const getProfile = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             data: users
         });
@@ -512,7 +512,7 @@ const resendOTP = async (req,res,next) => {
 
 const whoami = async (req, res, next) => {
     try {
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'OK',
             data: req.user

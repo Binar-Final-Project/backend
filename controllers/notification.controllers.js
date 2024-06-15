@@ -13,6 +13,7 @@ getNotification = async (req, res, next) => {
 
     const notifications = await prisma.notifications.findMany({
       where: whereClause,
+      orderBy: {created_at: 'desc'}
     });
 
     if (notifications.length === 0) {
@@ -89,4 +90,39 @@ updateNotification = async (req,res,next) => {
   }
 }
 
-module.exports = { getNotification, updateNotification };
+markAll = async (req,res,next) => {
+  try {
+    const user_id = req.user.user_id
+
+    const notifications = await prisma.notifications.findMany({
+      where: {user_id}
+    })
+
+    if(!notifications){
+      return res.status(400).json({
+        status: true,
+        message: 'Notifications not found',
+        data: null
+      })
+    }
+
+    notifications.forEach(async notification => {
+      if(notification.status === 'unread'){
+        await prisma.notifications.update({
+          where: {notification_id: notification.notification_id},
+          data: {status: 'read'}
+        })
+      }
+    })
+
+    res.status(200).json({
+      status: true,
+      message: 'Marked all as read!',
+      data: null
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { getNotification, updateNotification, markAll };
