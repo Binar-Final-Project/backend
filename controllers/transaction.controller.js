@@ -203,6 +203,15 @@ const processPayment = async (req, res, next) => {
       },
     });
 
+    await prisma.notifications.create({
+      data: {
+        title: "Payment Successful",
+        description: `Your payment for booking code ${booking_code} has been successfully processed.`,
+        status: "unread",
+        user_id: transaction.user_id,
+      },
+    });
+
     res.status(200).json({
       status: true,
       message: "Payment Successful",
