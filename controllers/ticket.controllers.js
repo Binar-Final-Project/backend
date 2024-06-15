@@ -204,6 +204,9 @@ module.exports = {
         total_price: data.total_price,
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
+        total_adult: data.ticket.total_adult,
+        total_children: data.ticket.total_children,
+        total_baby: data.ticket.total_baby,
         departure: {
           flight_date: data.ticket.departure_flight.flight_date.split("T")[0],
           departure_time: data.ticket.departure_flight.departure_time,
