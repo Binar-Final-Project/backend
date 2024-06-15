@@ -1448,7 +1448,7 @@
         }
       }
     },
-    "/api/v1/transactions": {
+    "/api/v1/transactions/history": {
       "get": {
         "tags": ["transactions"],
         "security": [
