@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient, transaction_status } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { getHTML, sendTicket } = require("../libs/mailer");
 const path = require("path");
@@ -98,6 +98,7 @@ const history = async (req, res, next) => {
       const tr = {};
       tr.transaction_id = t.transaction_id;
       tr.total_price = t.total_price;
+      tr.total_before_tax = +t.total_price - +t.tax
       tr.tax = t.tax;
       tr.payment_method = t.payment_method;
       tr.card_number = t.card_number;
@@ -127,6 +128,7 @@ const history = async (req, res, next) => {
         arrival_terminal: t.ticket.departure_flight.arrival_terminal,
         class: t.ticket.departure_flight.class,
         price: t.ticket.departure_flight.price,
+        baby_price: +t.ticket.departure_flight.price*0.1,
         duration: t.ticket.departure_flight.duration,
         capacity: t.ticket.departure_flight.capacity,
         free_baggage: t.ticket.departure_flight.free_baggage,
@@ -150,6 +152,7 @@ const history = async (req, res, next) => {
           arrival_terminal: t.ticket.arrival_flight.arrival_terminal,
           class: t.ticket.arrival_flight.class,
           price: t.ticket.arrival_flight.price,
+          baby_price: +t.ticket.arrival_flight.price*0.1,
           duration: t.ticket.arrival_flight.duration,
           capacity: t.ticket.arrival_flight.capacity,
           free_baggage: t.ticket.arrival_flight.free_baggage,
@@ -210,10 +213,26 @@ const processPayment = async (req, res, next) => {
       where: { booking_code },
     });
 
-    if (!transaction || transaction.status !== "UNPAID") {
+    if (!transaction) {
       return res.status(400).json({
         status: false,
         message: "Invalid transaction state or booking code",
+        data: null,
+      });
+    }
+
+    if(transaction.status === transaction_status.ISSUED){
+      return res.status(400).json({
+        status: false,
+        message: "Transaction has been paid",
+        data: null,
+      });
+    }
+
+    if(transaction.status === transaction_status.CANCELLED){
+      return res.status(400).json({
+        status: false,
+        message: "Transaction has been canceled",
         data: null,
       });
     }
