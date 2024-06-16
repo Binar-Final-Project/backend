@@ -58,10 +58,10 @@ const filterSort = (sort) => {
 module.exports = {
   search: async (req, res, next) => {
     try {
-      const { departure_code, arrival_code, departure_date, total_passenger } =
+      let { departure_code, arrival_code, departure_date, total_passenger } =
         req.body;
       const seat_class = req.body.seat_class.toUpperCase();
-
+      
       let sort = filterSort(req.query.sort);
       if (sort === null) {
         return res.status(400).json({
@@ -126,7 +126,7 @@ module.exports = {
             INNER JOIN airlines airline ON airline.airline_id = airplane.airline_id
             LEFT JOIN purchased_ticket pt ON pt.departure_flight_id = f.flight_id
           WHERE
-            f.flight_date::text LIKE '%' || ${departure_date} || '%'
+            f.flight_date = ${departure_date+'T00:00:00Z'}
             AND d_airport.airport_id = ${airports.dept_id}
             AND a_airport.airport_id = ${airports.arr_id}
             AND f.class = ${seat_class}
@@ -150,7 +150,6 @@ module.exports = {
           data: null,
         });
       }
-
       let mapped = result.map((s) => {
         let isFree = false;
         if (s.free_baggage > 0) {
