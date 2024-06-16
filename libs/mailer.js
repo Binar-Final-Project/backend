@@ -24,6 +24,26 @@ const sendMail = async (to, subject, html) => {
     }
 }
 
+const sendTicket = async (to, pdf, filename) => {
+    try {
+        await transporter.sendMail({
+            from: GOOGLE_SENDER_EMAIL,
+            to,
+            subject: 'Your E-ticket',
+            text: 'Please find your e-ticket attached',
+            attachments: [
+                {
+                    filename,
+                    content: pdf,
+                    contentType: 'application/pdf'
+                }
+            ]
+        })
+    } catch (err) {
+        throw error
+    }
+}
+
 const getHTML = (fileName, data) => {
     return new Promise((resolve, reject) => {
         const path = `${__dirname}/../views/${fileName}`;
@@ -36,4 +56,4 @@ const getHTML = (fileName, data) => {
     });
 }
 
-module.exports = { sendMail, getHTML };
+module.exports = { sendMail, getHTML, sendTicket };

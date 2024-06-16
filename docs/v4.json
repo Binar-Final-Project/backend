@@ -1087,7 +1087,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "flight_id": {
+                  "flights": {
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -1225,7 +1225,7 @@
         }
       }
     },
-    "/api/v1/notifications/{id}": {
+    "/api/v1/notifications": {
       "get": {
         "tags": ["notifications"],
         "security": [
@@ -1234,16 +1234,6 @@
           }
         ],
         "description": "Get all notifications data",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "integer"
-            },
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successfully",
@@ -1344,7 +1334,220 @@
         }
       }
     },
-    "/api/v1/transactions": {
+    "/api/v1/notifications/mark-all": {
+      "get": {
+        "tags": ["notifications"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Mark all notifications as read",
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Marked all as read!"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "notifications not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Unauthorized"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/:id": {
+      "put": {
+        "tags": ["notifications"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Update notifications data",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Updated!"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "notification_status": {
+                          "example": "read"
+                        } 
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Notification not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/history": {
       "get": {
         "tags": ["transactions"],
         "security": [
@@ -1891,7 +2094,7 @@
           },
           "created_at": {
             "type": "string",
-            "example": "2012-07-10T14:58:00.000Z"
+            "example": "2012-07-10"
           }
         }
       },
@@ -2035,7 +2238,8 @@
             "example": null
           },
           "phone_number": {
-            "example": 8123182381
+            "example": 8123182381,
+            "type": "string"
           },
           "email": {
             "example": "doe@gmail.com"
@@ -2051,11 +2255,15 @@
           "email": {
             "example": "john@gmail.com"
           },
+          "title": {
+            "example": "Mr."
+          },
           "passenger_type": {
             "example": "adult"
           },
           "phone_number": {
-            "example": 8128339122
+            "example": 8128339122,
+            "type": "string"
           },
           "date_of_birth": {
             "example": "2000-04-14"
@@ -2064,7 +2272,8 @@
             "example": "Indonesia"
           },
           "identity_number": {
-            "example": 1234213121323
+            "example": 1234213121323,
+            "type": "string"
           },
           "issuing_country": {
             "example": "Indonesia"

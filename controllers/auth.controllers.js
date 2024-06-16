@@ -117,7 +117,7 @@ const verify = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'User verified!',
             data: {
@@ -163,10 +163,9 @@ const login = async (req, res, next) => {
 
         delete users.otp_number
         delete users.password
-        console.log('user login:', users)
         const token = jwt.sign({...users}, JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'User logged in!',
             data: {
@@ -209,7 +208,7 @@ const forgotPassword = async (req, res, next) => {
         
         const html = await getHTML('forgot-password.ejs', { link });
         await sendMail(email, 'Reset Password', html);
-        return res.json({
+        return res.status(200).json({
             status: true,
             message: 'Reset password link sent to your email',
             data: null
@@ -268,7 +267,7 @@ const changePassword = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'Password changed successfully',
             data: null
@@ -292,7 +291,16 @@ const updateProfile = async (req, res, next) => {
             }
         });
 
-        res.json({
+        await prisma.notifications.create({
+            data: {
+                title: 'Profile Update successfully',
+                description: `update profile succesfully`,
+                user_id: req.user.user_id,
+                status: 'unread'
+            }
+        });
+
+        res.status(200).json({
             status: true,
             message: 'Profile updated successfully'
         });
@@ -339,7 +347,16 @@ const updatePassword = async(req, res, next) =>{
             }
         });
 
-        res.json({
+        await prisma.notifications.create({
+            data: {
+                title: 'Password Update successfully',
+                description: `update password succesfully`,
+                user_id: req.user.user_id,
+                status: 'unread'
+            }
+        });
+
+        res.status(200).json({
             status: true,
             message: 'Password updated successfully'
         });
@@ -363,7 +380,7 @@ const getProfile = async (req, res, next) => {
             }
         });
 
-        res.json({
+        res.status(200).json({
             status: true,
             data: users
         });
@@ -372,19 +389,84 @@ const getProfile = async (req, res, next) => {
     }
 }
 
-const deleteAllUsers = async (req,res, next) => {
+const deleteUser = async (req, res, next) => {
+    const email = req.params.email;
+  
     try {
-        await prisma.notifications.deleteMany()
-        await prisma.users.deleteMany()
-
-        res.status(200).json({
-            status: true,
-            message: 'Users deleted'
-        })
-    } catch (err) {
-        next(err)
+      const user = await prisma.users.findUnique({ where: { email } });
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const userId = user.user_id;
+  
+      await prisma.$transaction(async (prisma) => {
+        // Delete related passengers and orderers
+        const orderer = await prisma.orderers.findUnique({
+          where: {
+            user_id: userId,
+          },
+        });
+  
+        if (orderer) {
+          await prisma.passengers.deleteMany({
+            where: {
+              orderer_id: orderer.orderer_id,
+            },
+          });
+  
+          await prisma.orderers.delete({
+            where: {
+              orderer_id: orderer.orderer_id,
+            },
+          });
+        }
+  
+        // Find all related transactions
+        const transactions = await prisma.transactions.findMany({
+          where: {
+            user_id: userId,
+          },
+        });
+  
+        // Delete transactions and related tickets
+        for (const transaction of transactions) {
+          await prisma.transactions.delete({
+            where: {
+              transaction_id: transaction.transaction_id,
+            },
+          });
+  
+          await prisma.tickets.delete({
+            where: {
+              ticket_id: transaction.ticket_id,
+            },
+          });
+        }
+  
+        // Delete all related notifications
+        await prisma.notifications.deleteMany({
+          where: {
+            user_id: userId,
+          },
+        });
+  
+        // Delete the user
+        await prisma.users.delete({
+          where: {
+            user_id: userId,
+          },
+        });
+      });
+  
+      res
+        .status(200)
+        .json({ message: 'User and related data deleted successfully' });
+    } catch (error) {
+      next(error);
     }
-}
+  };
 
 const resendOTP = async (req,res,next) => {
     try {
@@ -429,7 +511,7 @@ const resendOTP = async (req,res,next) => {
 
 const whoami = async (req, res, next) => {
     try {
-        res.json({
+        res.status(200).json({
             status: true,
             message: 'OK',
             data: req.user
@@ -439,4 +521,4 @@ const whoami = async (req, res, next) => {
     }
 }
 
-module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteAllUsers, resendOTP};
+module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteUser, resendOTP};

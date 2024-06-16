@@ -1,8 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-getNotificationById = async (req, res, next) => {
-  const { id } = req.params;
+getNotification = async (req, res, next) => {
+  const id = req.user.user_id;
   const { status } = req.query; 
 
   try {
@@ -13,6 +13,7 @@ getNotificationById = async (req, res, next) => {
 
     const notifications = await prisma.notifications.findMany({
       where: whereClause,
+      orderBy: {created_at: 'desc'}
     });
 
     if (notifications.length === 0) {
@@ -51,4 +52,77 @@ getNotificationById = async (req, res, next) => {
   }
 };
 
-module.exports = { getNotificationById };
+updateNotification = async (req,res,next) => {
+  try {
+    const notif_id = +req.params.id
+
+    const isRead = await prisma.notifications.findUnique({where: {notification_id: notif_id}})
+
+    if(isRead.status === 'read'){
+      return res.status(200).json({
+        status: true,
+        message: 'Notification has been read'
+      })
+    }
+
+    const result = await prisma.notifications.update({
+      where: {notification_id: notif_id},
+      data: {
+        status: 'read'
+      }
+    })
+
+    if(!result) {
+      return res.status(400).json({
+        status: false,
+        message: 'Notification not found',
+        data: null
+      })
+    }
+
+    res.status(200).json({
+      status: true,
+      message: 'Updated!',
+      data: {notification_status: result.status}
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+markAll = async (req,res,next) => {
+  try {
+    const user_id = req.user.user_id
+
+    const notifications = await prisma.notifications.findMany({
+      where: {user_id}
+    })
+
+    if(!notifications){
+      return res.status(400).json({
+        status: true,
+        message: 'Notifications not found',
+        data: null
+      })
+    }
+
+    notifications.forEach(async notification => {
+      if(notification.status === 'unread'){
+        await prisma.notifications.update({
+          where: {notification_id: notification.notification_id},
+          data: {status: 'read'}
+        })
+      }
+    })
+
+    res.status(200).json({
+      status: true,
+      message: 'Marked all as read!',
+      data: null
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { getNotification, updateNotification, markAll };
