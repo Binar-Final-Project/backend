@@ -142,6 +142,9 @@ model flights {
   departure_airport airports @relation("departure", fields: [departure_airport_id], references: [airport_id])
   arrival_airport_id Int
   arrival_airport airports @relation("arrival", fields: [arrival_airport_id], references: [airport_id])
+
+  // Composite index definition
+  @@index([departure_airport_id, arrival_airport_id, flight_date, class], name: "idx_flight_search")
 }
 
 //Lookup tables
