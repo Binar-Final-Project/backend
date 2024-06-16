@@ -39,10 +39,11 @@ async function calculateTotalPrice(
     where: { flight_id: { in: flights } },
     select: { price: true },
   });
-
   let price = prices.reduce((sum, flight) => sum + flight.price, 0);
+  let babyPrice = (price * 0.1)*total_baby
 
-  price *= total_adult + total_children + total_baby;
+  price *= total_adult + total_children;
+  price += babyPrice
 
   const tax = price * 0.1;
   price += tax;
@@ -204,6 +205,10 @@ module.exports = {
         total_price: data.total_price,
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
+        default_departure_price: data.ticket.departure_flight.price,
+        default_return_price: data.ticket.arrival_flight.price,
+        default_departure_baby_price: +data.ticket.departure_flight.price*0.1,
+        default_return_baby_price: +data.ticket.arrival_flight.price*0.1,
         total_adult: data.ticket.total_adult,
         total_children: data.ticket.total_children,
         total_baby: data.ticket.total_baby,

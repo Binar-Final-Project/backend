@@ -163,7 +163,6 @@ const login = async (req, res, next) => {
 
         delete users.otp_number
         delete users.password
-        console.log('user login:', users)
         const token = jwt.sign({...users}, JWT_SECRET, { expiresIn: '1h' });
 
         res.status(200).json({
