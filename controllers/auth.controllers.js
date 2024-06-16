@@ -293,10 +293,10 @@ const updateProfile = async (req, res, next) => {
 
         await prisma.notifications.create({
             data: {
-                title: 'Profile Update successfully',
-                description: `update profile succesfully`,
+                title: 'Profil Berhasil Diperbarui!',
+                description: `Semua perubahan pada profil Anda telah berhasil diperbarui.`,
                 user_id: req.user.user_id,
-                status: 'unread'
+                status: 'Belum Dibaca'
             }
         });
 
@@ -349,10 +349,10 @@ const updatePassword = async(req, res, next) =>{
 
         await prisma.notifications.create({
             data: {
-                title: 'Password Update successfully',
-                description: `update password succesfully`,
+                title: 'Password Berhasil Diperbarui!',
+                description: `Password Anda telah berhasil diperbarui.`,
                 user_id: req.user.user_id,
-                status: 'unread'
+                status: 'Belum Dibaca'
             }
         });
 

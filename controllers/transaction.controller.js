@@ -251,9 +251,9 @@ const processPayment = async (req, res, next) => {
 
     await prisma.notifications.create({
       data: {
-        title: "Payment Successful",
-        description: `Your payment for booking code ${booking_code} has been successfully processed.`,
-        status: "unread",
+        title: "Pembayaran Berhasil!",
+        description: `Pembayaran Anda pada Kode Booking [${booking_code}] telah sukses.`,
+        status: "Belum Dibaca",
         user_id: transaction.user_id,
       },
     });
@@ -418,10 +418,10 @@ const printTicket = async (req, res, next) => {
 
       await prisma.notifications.create({
         data: {
-          title: "Your e-ticket has been sent",
-          description: "Please check your email to find the e-ticket",
+          title: "E-ticket Anda Telah Terkirim!",
+          description: "E-ticket Anda sudah siap! Silakan periksa email Anda untuk melihat dan menyimpannya.",
           user_id: req.user.user_id,
-          status: "unread",
+          status: "Belum Dibaca",
         },
       });
       // Handle PDF buffer asynchronously (e.g., save to disk)
