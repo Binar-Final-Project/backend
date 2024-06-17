@@ -4,7 +4,7 @@ const crypto = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const { sendMail, getHTML } = require('../libs/mailer');
 
-const { JWT_SECRET, TOKEN_SECRET, FORGOT_PASSWORD_URL } = process.env;
+const { JWT_SECRET, TOKEN_SECRET, FORGOT_PASSWORD_URL, FE_URL } = process.env;
 
 const generateOTP = () => {
     const otp_number= Math.floor(100000 + Math.random() * 900000);
@@ -521,4 +521,11 @@ const whoami = async (req, res, next) => {
     }
 }
 
-module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteUser, resendOTP};
+const googleOauth2= (req, res) => {
+    let token = jwt.sign({...req.user}, JWT_SECRET, { expiresIn: '1h' });
+
+    res.cookie('token', token, { httpOnly: true });
+    return res.redirect(FE_URL); // redirect to client
+}
+
+module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteUser, resendOTP, googleOauth2};
