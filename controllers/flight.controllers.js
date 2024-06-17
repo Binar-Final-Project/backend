@@ -32,9 +32,12 @@ const filterSort = (sort) => {
     "desc",
   ];
 
-  let sortQ = sort;
-  if (sortQ === undefined || sortQ === "undefined") {
+  let sortQ;
+  console.log(sort)
+  if (sort === undefined || sort === "undefined" || !sort) {
     sortQ = "PRICE.ASC";
+  }else {
+    sortQ = sort
   }
 
   let sortBy, sortOrder;
@@ -62,7 +65,11 @@ module.exports = {
         req.body;
       const seat_class = req.body.seat_class.toUpperCase();
       
-      let sort = filterSort(req.query.sort);
+      let q = req.query.sort
+      if(!q){
+        q = "PRICE.ASC"
+      }
+      let sort = filterSort(q)
       if (sort === null) {
         return res.status(400).json({
           status: false,
