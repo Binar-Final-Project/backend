@@ -15,22 +15,25 @@
   ],
   "tags": [
     {
-      "name": "users"
+      "name": "Users"
     },
     {
-      "name": "flights"
+      "name": "Flights"
     },
     {
-      "name": "tickets"
+      "name": "Tickets"
     },
     {
-      "name": "notifications"
+      "name": "Notifications"
+    },
+    {
+      "name": "Transactions"
     }
   ],
   "paths": {
     "/api/v1/users/register": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -137,7 +140,7 @@
     },
     "/api/v1/users/verification-otp": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -231,7 +234,7 @@
     },
     "/api/v1/users/login": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -327,7 +330,7 @@
     },
     "/api/v1/users/sent-forgot-password": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -411,7 +414,7 @@
     },
     "/api/v1/users/reset-password": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -419,7 +422,7 @@
                 "type": "object",
                 "properties": {
                   "password": {
-                    "example": "john@gmail.com"
+                    "example": "john123"
                   },
                   "password2": {
                     "example": "john123"
@@ -501,7 +504,7 @@
     },
     "/api/v1/users/resend-otp": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -585,7 +588,7 @@
     },
     "/api/v1/users/update-profile": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "description": "Update profile API",
         "security": [
           {
@@ -702,7 +705,7 @@
     },
     "/api/v1/users/update-password": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "description": "Update profile API",
         "security": [
           {
@@ -821,7 +824,7 @@
     },
     "/api/v1/users/profile": {
       "get": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "security": [
           {
             "bearerAuth": []
@@ -931,7 +934,7 @@
     },
     "/api/v1/flights": {
       "post": {
-        "tags": ["flights"],
+        "tags": ["Flights"],
         "description": "Ticket Searching API",
         "parameters": [
           {
@@ -1065,7 +1068,7 @@
     },
     "/api/v1/tickets": {
       "post": {
-        "tags": ["tickets"],
+        "tags": ["Tickets"],
         "description": "API ini dipake pas simpan data diri passengers",
         "security": [
           {
@@ -1218,7 +1221,7 @@
     },
     "/api/v1/notifications": {
       "get": {
-        "tags": ["notifications"],
+        "tags": ["Notifications"],
         "security": [
           {
             "bearerAuth": []
@@ -1327,7 +1330,7 @@
     },
     "/api/v1/notifications/mark-all": {
       "get": {
-        "tags": ["notifications"],
+        "tags": ["Notifications"],
         "security": [
           {
             "bearerAuth": []
@@ -1426,7 +1429,7 @@
     },
     "/api/v1/notifications/:id": {
       "put": {
-        "tags": ["notifications"],
+        "tags": ["Notifications"],
         "security": [
           {
             "bearerAuth": []
@@ -1540,7 +1543,7 @@
     },
     "/api/v1/transactions/history": {
       "get": {
-        "tags": ["transactions"],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1676,7 +1679,7 @@
     },
     "/api/v1/transactions/{code}": {
       "get": {
-        "tags": ["transactions"],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1785,7 +1788,7 @@
     },
     "/api/v1/transactions/{booking_code}": {
       "put": {
-        "tags": ["transactions"],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1897,7 +1900,7 @@
     },
     "/api/v1/transactions/pay": {
       "post": {
-        "tags": ["transactions"],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -1914,7 +1917,8 @@
                     "example": "G4H87BP1"
                   },
                   "payment_method": {
-                    "example": "credit"
+                    "example": "",
+                    "description": "Kalau VA isi VA, kalau credit card kosongin aja"
                   },
                   "card_number": {
                     "example": 44003202321033,
@@ -1924,7 +1928,7 @@
                     "example": "John"
                   },
                   "cvv": {
-                    "example": 33
+                    "example": 333
                   },
                   "expiry_date": {
                     "example": "07/29"
