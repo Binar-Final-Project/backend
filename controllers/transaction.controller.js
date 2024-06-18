@@ -1,9 +1,8 @@
 const { PrismaClient, transaction_status } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { getHTML, sendTicket } = require("../libs/mailer");
-const path = require("path");
-const fs = require("fs");
 const { generatePdf } = require("../libs/pdf");
+const cardValidator = require("card-validator");
 
 const rupiah = (number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -181,7 +180,7 @@ const history = async (req, res, next) => {
 };
 
 const processPayment = async (req, res, next) => {
-  const {
+  let {
     booking_code,
     payment_method,
     card_number,
@@ -190,19 +189,51 @@ const processPayment = async (req, res, next) => {
     expiry_date,
   } = req.body;
 
-  if (
-    !booking_code ||
-    !payment_method ||
-    !card_number ||
-    !card_holder_name ||
-    !cvv ||
-    !expiry_date
-  ) {
+  if(!booking_code){
     return res.status(400).json({
       status: false,
-      message: "All fields are required",
+      message: "Kode booking tidak dimasukkan",
       data: null,
     });
+  }
+
+  if (payment_method.toLowerCase() !== "va" || !payment_method) {
+    if (
+      !card_number ||
+      !card_holder_name ||
+      !cvv ||
+      !expiry_date
+    ) {
+      return res.status(400).json({
+        status: false,
+        message: "Data yang dikirim kurang",
+        data: null,
+      });
+    }
+
+    const numberValidation = cardValidator.number(card_number);
+    console.log(numberValidation)
+    if (!numberValidation.isPotentiallyValid) {
+      return res.status(400).json({
+        status: false,
+        message: "Kartu anda tidak valid",
+      });
+    }
+
+    const expiryValidation = cardValidator.expirationDate(expiry_date);
+    if (!expiryValidation.isValid) {
+      return res.status(400).json({
+        status: false,
+        message: "Kartu anda sudah kadaluarsa",
+      });
+    }
+
+    payment_method = numberValidation.card.type
+  }else {
+    card_holder_name = null,
+    card_number = null,
+    cvv = null,
+    expiry_date = null
   }
 
   try {
@@ -213,7 +244,7 @@ const processPayment = async (req, res, next) => {
     if (!transaction) {
       return res.status(400).json({
         status: false,
-        message: "Invalid transaction state or booking code",
+        message: "Transaksi gagal!",
         data: null,
       });
     }
@@ -221,7 +252,7 @@ const processPayment = async (req, res, next) => {
     if (transaction.status === transaction_status.ISSUED) {
       return res.status(400).json({
         status: false,
-        message: "Transaction has been paid",
+        message: "Transaksi sudah anda bayar!",
         data: null,
       });
     }
@@ -229,7 +260,7 @@ const processPayment = async (req, res, next) => {
     if (transaction.status === transaction_status.CANCELLED) {
       return res.status(400).json({
         status: false,
-        message: "Transaction has been canceled",
+        message: "Transaksi sudah anda batalkan sebelumnya!",
         data: null,
       });
     }
@@ -248,7 +279,7 @@ const processPayment = async (req, res, next) => {
 
     res.status(200).json({
       status: true,
-      message: "Payment Successful",
+      message: "Pembayaran berhasil",
       data: { status: updatedTransaction.status },
     });
   } catch (error) {
@@ -319,7 +350,7 @@ const printTicket = async (req, res, next) => {
       });
     }
 
-    if (data.status !== "ISSUED") {
+    if (data.status !== transaction_status.ISSUED) {
       return res.status(400).json({
         status: false,
         message: "You haven't paid for the ticket yet",
