@@ -412,15 +412,6 @@
     "/api/v1/users/reset-password": {
       "post": {
         "tags": ["users"],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "token",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
