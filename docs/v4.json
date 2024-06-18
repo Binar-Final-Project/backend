@@ -1683,7 +1683,7 @@
         }
       }
     },
-    "/api/v1/transactions/print/{id}": {
+    "/api/v1/transactions/{code}": {
       "get": {
         "tags": ["transactions"],
         "security": [
@@ -1695,9 +1695,9 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "code",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "required": true
           }
@@ -1739,6 +1739,118 @@
                       "oneOf": [
                         {
                           "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UnauthorizedResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data not found"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/{booking_code}": {
+      "put": {
+        "tags": ["transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Cancel transaction",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Data transaksi berhasil dibatalkan"
+                    },
+                    "data": {
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Data transaksi tidak ditemukan"
+                        },
+                        {
+                          "example": "Data transaksi bukan milik anda"
                         }
                       ]
                     }

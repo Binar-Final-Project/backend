@@ -206,9 +206,7 @@ module.exports = {
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
         default_departure_price: data.ticket.departure_flight.price,
-        default_return_price: data.ticket.arrival_flight.price,
         default_departure_baby_price: +data.ticket.departure_flight.price*0.1,
-        default_return_baby_price: +data.ticket.arrival_flight.price*0.1,
         total_adult: data.ticket.total_adult,
         total_children: data.ticket.total_children,
         total_baby: data.ticket.total_baby,
@@ -233,6 +231,8 @@ module.exports = {
       if (!data.ticket.arrival_flight) {
         returnData.return = null;
       } else {
+        returnData.default_return_baby_price = data.ticket.arrival_flight.price*0.1,
+        returnData.default_return_price= data.ticket.arrival_flight.price,
         returnData.return = {
           flight_date: data.ticket.arrival_flight.flight_date.split("T")[0],
           departure_time: data.ticket.arrival_flight.departure_time,

@@ -60,7 +60,6 @@ const history = async (req, res, next) => {
       condition.where = {
         ...condition.where,
         booking_code: {
-          // case-insensitive search
           contains: req.query.q,
           mode: "insensitive",
         },
@@ -69,36 +68,35 @@ const history = async (req, res, next) => {
 
     if (req.query.lt && req.query.gte) {
       condition.where = {
-        AND: [
-          condition.where,
-          {
-            ticket: {
-              departure_flight: {
-                flight_date: {
-                  lte: req.query.lt,
-                },
-              },
-            },
-          },
-          {
-            ticket: {
-              departure_flight: {
-                flight_date: {
-                  gte: req.query.gte,
-                },
-              },
-            },
-          },
-        ],
+        ...condition.where,
+        created_at: {
+          lt: new Date(req.query.lt),
+          gte: new Date(req.query.gte),
+        },
+      };
+    } else if (req.query.lt) {
+      condition.where = {
+        ...condition.where,
+        created_at: {
+          lt: new Date(req.query.lt),
+        },
+      };
+    } else if (req.query.gte) {
+      condition.where = {
+        ...condition.where,
+        created_at: {
+          gte: new Date(req.query.gte),
+        },
       };
     }
 
     const transactions = await prisma.transactions.findMany(condition);
     const dataReturn = transactions.map((t) => {
       const tr = {};
+      tr.flights = [t.ticket.departure_flight.flight_id];
       tr.transaction_id = t.transaction_id;
       tr.total_price = t.total_price;
-      tr.total_before_tax = +t.total_price - +t.tax
+      tr.total_before_tax = +t.total_price - +t.tax;
       tr.tax = t.tax;
       tr.payment_method = t.payment_method;
       tr.card_number = t.card_number;
@@ -120,15 +118,14 @@ const history = async (req, res, next) => {
         return passenger;
       });
       tr.departure_flight = {
-        flight_number: t.ticket.departure_flight.flight_id,
-        flight_date: t.ticket.departure_flight.flight_date.split('T')[0],
+        flight_date: t.ticket.departure_flight.flight_date.split("T")[0],
         departure_time: t.ticket.departure_flight.departure_time,
         arrival_time: t.ticket.departure_flight.arrival_time,
         departure_terminal: t.ticket.departure_flight.departure_terminal,
         arrival_terminal: t.ticket.departure_flight.arrival_terminal,
         class: t.ticket.departure_flight.class,
         price: t.ticket.departure_flight.price,
-        baby_price: +t.ticket.departure_flight.price*0.1,
+        baby_price: +t.ticket.departure_flight.price * 0.1,
         duration: t.ticket.departure_flight.duration,
         capacity: t.ticket.departure_flight.capacity,
         free_baggage: t.ticket.departure_flight.free_baggage,
@@ -142,17 +139,17 @@ const history = async (req, res, next) => {
         airline: t.ticket.departure_flight.airplane.airline.name,
       };
 
-      if(t?.ticket?.arrival_flight){
+      if (t?.ticket?.arrival_flight) {
+        tr.flights[1] = t.ticket.arrival_flight.flight_id;
         tr.return_flight = {
-          flight_number: t.ticket.arrival_flight.flight_id,
-          flight_date: t.ticket.arrival_flight.flight_date.split('T')[0],
+          flight_date: t.ticket.arrival_flight.flight_date.split("T")[0],
           departure_time: t.ticket.arrival_flight.departure_time,
           arrival_time: t.ticket.arrival_flight.arrival_time,
           departure_terminal: t.ticket.arrival_flight.departure_terminal,
           arrival_terminal: t.ticket.arrival_flight.arrival_terminal,
           class: t.ticket.arrival_flight.class,
           price: t.ticket.arrival_flight.price,
-          baby_price: +t.ticket.arrival_flight.price*0.1,
+          baby_price: +t.ticket.arrival_flight.price * 0.1,
           duration: t.ticket.arrival_flight.duration,
           capacity: t.ticket.arrival_flight.capacity,
           free_baggage: t.ticket.arrival_flight.free_baggage,
@@ -165,8 +162,8 @@ const history = async (req, res, next) => {
           airplane_model: t.ticket.arrival_flight.airplane.model,
           airline: t.ticket.arrival_flight.airplane.airline.name,
         };
-      }else{
-        tr.return_flight = null
+      } else {
+        tr.return_flight = null;
       }
 
       return tr;
@@ -221,7 +218,7 @@ const processPayment = async (req, res, next) => {
       });
     }
 
-    if(transaction.status === transaction_status.ISSUED){
+    if (transaction.status === transaction_status.ISSUED) {
       return res.status(400).json({
         status: false,
         message: "Transaction has been paid",
@@ -229,7 +226,7 @@ const processPayment = async (req, res, next) => {
       });
     }
 
-    if(transaction.status === transaction_status.CANCELLED){
+    if (transaction.status === transaction_status.CANCELLED) {
       return res.status(400).json({
         status: false,
         message: "Transaction has been canceled",
@@ -424,4 +421,71 @@ const printTicket = async (req, res, next) => {
   }
 };
 
-module.exports = { history, processPayment, printTicket };
+const cancelTransactions = async (req, res, next) => {
+  try {
+    const code = req.params.code;
+    const user_id = req.user.user_id;
+
+    const isDataExist = await prisma.transactions.findUnique({
+      where: { booking_code: code },
+    });
+
+    if (!isDataExist) {
+      return res.status(400).json({
+        status: false,
+        message: "Data transaksi tidak ditemukan",
+        data: null,
+      });
+    }
+
+    if (+isDataExist.user_id !== +user_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Data transaksi ini bukan milik anda!",
+        data: null,
+      });
+    }
+
+    const result = await prisma.$transaction(async (prisma) => {
+      const updated = await prisma.transactions.update({
+        where: { booking_code: code },
+        data: {
+          status: transaction_status.CANCELLED,
+        },
+      });
+
+      if (!updated) {
+        return false;
+      }
+
+      await prisma.notifications.create({
+        data: {
+          title: "Transaksi berhasil dibatalkan!",
+          description: `Anda berhasil membatalkan transaksi [${updated.booking_code}], Sampai jumpa lagi!`,
+          user_id: req.user.user_id,
+          status: "unread",
+        },
+      });
+
+      return true;
+    });
+
+    if (!result) {
+      return res.status(400).json({
+        status: false,
+        message: "Data transaksi gagal untuk dibatalkan!",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      status: false,
+      message: "Data transaksi berhasil dibatalkan!",
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { history, processPayment, printTicket, cancelTransactions };
