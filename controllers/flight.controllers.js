@@ -152,7 +152,7 @@ module.exports = {
       if (page > totalPage) {
         return res.status(400).json({
           status: false,
-          message: "Page not found",
+          message: "Halaman tidak ditemukan",
           data: null,
         });
       }
@@ -253,6 +253,14 @@ module.exports = {
           da.code,
           aa.code
       `;
+
+      if(!cheapestFlightsToday) {
+        return res.status(400).json({
+          status: false,
+          message: 'Data tidak ditemukan',
+          data: null
+        })
+      }
 
       const mapped = cheapestFlightsToday.map(f => {
         return {
