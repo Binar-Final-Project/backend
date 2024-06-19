@@ -147,6 +147,7 @@ model flights {
 
   // Composite index definition
   @@index([departure_airport_id, arrival_airport_id, flight_date, class], name: "idx_flight_search")
+  @@index([flight_date, departure_airport_id, arrival_airport_id, class, price], name: "idx_cheapest_flight_search")
 }
 
 //Lookup tables
