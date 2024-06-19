@@ -33,11 +33,10 @@ const filterSort = (sort) => {
   ];
 
   let sortQ;
-  console.log(sort)
   if (sort === undefined || sort === "undefined" || !sort) {
     sortQ = "PRICE.ASC";
-  }else {
-    sortQ = sort
+  } else {
+    sortQ = sort;
   }
 
   let sortBy, sortOrder;
@@ -64,12 +63,12 @@ module.exports = {
       let { departure_code, arrival_code, departure_date, total_passenger } =
         req.body;
       const seat_class = req.body.seat_class.toUpperCase();
-      
-      let q = req.query.sort
-      if(!q){
-        q = "PRICE.ASC"
+
+      let q = req.query.sort;
+      if (!q) {
+        q = "PRICE.ASC";
       }
-      let sort = filterSort(q)
+      let sort = filterSort(q);
       if (sort === null) {
         return res.status(400).json({
           status: false,
@@ -133,7 +132,7 @@ module.exports = {
             INNER JOIN airlines airline ON airline.airline_id = airplane.airline_id
             LEFT JOIN purchased_ticket pt ON pt.departure_flight_id = f.flight_id
           WHERE
-            f.flight_date = ${departure_date+'T00:00:00Z'}
+            f.flight_date = ${departure_date + "T00:00:00Z"}
             AND d_airport.airport_id = ${airports.dept_id}
             AND a_airport.airport_id = ${airports.arr_id}
             AND f.class = ${seat_class}
@@ -153,7 +152,7 @@ module.exports = {
       if (page > totalPage) {
         return res.status(400).json({
           status: false,
-          message: "Page not found",
+          message: "Halaman tidak ditemukan",
           data: null,
         });
       }
@@ -208,6 +207,92 @@ module.exports = {
       });
     } catch (err) {
       next(err);
+    }
+  },
+
+  getCheapestFlights: async (req, res, next) => {
+    try {
+      const currentDate = new Date().toISOString().split("T")[0] + "T00:00:00Z";
+
+      const cheapestFlightsToday = await prisma.$queryRaw`
+        SELECT 
+          MIN(f.price) as min_price,
+          f.flight_id,
+          f.flight_number,
+          f.flight_date,
+          f.departure_time,
+          f.arrival_time,
+          f.class,
+          da.name as departure_airport_name,
+          da.city as departure_airport_city,
+          da.code as departure_airport_code,
+          aa.name as arrival_airport_name,
+          aa.city as arrival_airport_city,
+          aa.code as arrival_airport_code,
+          a.model as airplane_model,
+          al.*
+        FROM flights f
+        JOIN airports da ON f.departure_airport_id = da.airport_id
+        JOIN airports aa ON f.arrival_airport_id = aa.airport_id
+        JOIN airplanes a ON f.airplane_id = a.airplane_id
+        JOIN airlines al ON a.airline_id = al.airline_id
+        WHERE f.flight_date = ${currentDate}
+        GROUP BY 
+          f.flight_id,
+          f.flight_number,
+          f.flight_date,
+          f.departure_time,
+          f.arrival_time,
+          f.class,
+          da.name,
+          da.city,
+          aa.name,
+          aa.city,
+          a.model,
+          al.airline_id,
+          da.code,
+          aa.code
+      `;
+
+      if(!cheapestFlightsToday){
+        return res.status(400).json({
+          status: false,
+          message: 'Data tidak ditemukan',
+          data: null
+        })
+      }
+
+      const mapped = cheapestFlightsToday.map(f => {
+        return {
+          flight_id: f.flight_id,
+          flight_number: f.flight_number,
+          flight_date: f.flight_date.split('T')[0],
+          departure_time: f.departure_time,
+          arrival_time: f.arrival_time,
+          class: f.class,
+          price: f.min_price,
+          airplane: f.airplane_model,
+          airline: f.name,
+          airline_icon: f.iconUrl,
+          departure: {
+            airport_name: f.departure_airport_name,
+            airport_city: f.departure_airport_city,
+            airport_code: f.departure_airport_code
+          },
+          arrival: {
+            airport_name: f.arrival_airport_name,
+            airport_city: f.arrival_airport_city,
+            airport_code: f.arrival_airport_code
+          }
+        }
+      })
+      res.status(200).json({
+        status: true,
+        message: "OK",
+        data: mapped,
+      });
+    } catch (error) {
+      next(error);
     }
   },
 };
