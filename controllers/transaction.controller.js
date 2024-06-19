@@ -192,7 +192,7 @@ const processPayment = async (req, res, next) => {
   if(!booking_code){
     return res.status(400).json({
       status: false,
-      message: "Kode booking tidak dimasukkan",
+      message: "Masukkan kode booking dengan benar",
       data: null,
     });
   }
@@ -206,7 +206,7 @@ const processPayment = async (req, res, next) => {
     ) {
       return res.status(400).json({
         status: false,
-        message: "Data yang dikirim kurang",
+        message: "Semua data harus diisi dengan benar",
         data: null,
       });
     }
@@ -244,7 +244,7 @@ const processPayment = async (req, res, next) => {
     if (!transaction) {
       return res.status(400).json({
         status: false,
-        message: "Transaksi gagal!",
+        message: "Transaksi gagal",
         data: null,
       });
     }
@@ -252,7 +252,7 @@ const processPayment = async (req, res, next) => {
     if (transaction.status === transaction_status.ISSUED) {
       return res.status(400).json({
         status: false,
-        message: "Transaksi sudah anda bayar!",
+        message: "Transaksi sudah dibayar",
         data: null,
       });
     }
@@ -260,7 +260,7 @@ const processPayment = async (req, res, next) => {
     if (transaction.status === transaction_status.CANCELLED) {
       return res.status(400).json({
         status: false,
-        message: "Transaksi sudah anda batalkan sebelumnya!",
+        message: "Transaksi sudah dibatalkan sebelumnya",
         data: null,
       });
     }
@@ -279,9 +279,9 @@ const processPayment = async (req, res, next) => {
 
     await prisma.notifications.create({
       data: {
-        title: "Pembayaran Berhasil!",
-        description: `Pembayaran Anda pada Kode Booking [${booking_code}] telah sukses.`,
-        status: "Belum Dibaca",
+        title: "Pembayaran Berhasil",
+        description: `Pembayaran Anda pada Kode Booking [${booking_code}] telah sukses`,
+        status: "Belum dibaca",
         user_id: transaction.user_id,
       },
     });
@@ -346,7 +346,7 @@ const printTicket = async (req, res, next) => {
     if (!data) {
       return res.status(400).json({
         status: false,
-        message: "Data not found",
+        message: "Data tidak ditemukan",
         data: null,
       });
     }
@@ -354,7 +354,7 @@ const printTicket = async (req, res, next) => {
     if (data.user_id !== req.user.user_id) {
       return res.status(400).json({
         status: false,
-        message: "This is not yours",
+        message: "Ini bukan tiket Anda",
         data: null,
       });
     }
@@ -362,7 +362,7 @@ const printTicket = async (req, res, next) => {
     if (data.status !== transaction_status.ISSUED) {
       return res.status(400).json({
         status: false,
-        message: "You haven't paid for the ticket yet",
+        message: "Anda belum membayar tiket ini",
         data: null,
       });
     }
@@ -438,18 +438,18 @@ const printTicket = async (req, res, next) => {
     generatePdf(htmlContent, async (error, pdfBuffer) => {
       if (error) {
         // Handle error
-        return res.status(500).json({ message: "Error generating PDF" });
+        return res.status(500).json({ message: "Error saat membuat PDF" });
       }
 
       // Send initial response (e.g., processing started)
-      res.status(202).json({ message: "E-ticket will sent to your email!" });
+      res.status(202).json({ message: "E-tiket sedang dikirimkan ke email Anda" });
 
       await prisma.notifications.create({
         data: {
           title: "E-ticket Anda Telah Terkirim!",
           description: "E-ticket Anda sudah siap! Silakan periksa email Anda untuk melihat dan menyimpannya.",
           user_id: req.user.user_id,
-          status: "Belum Dibaca",
+          status: "Belum dibaca",
         },
       });
       // Handle PDF buffer asynchronously (e.g., save to disk)
@@ -481,7 +481,7 @@ const cancelTransactions = async (req, res, next) => {
     if (+isDataExist.user_id !== +user_id) {
       return res.status(400).json({
         status: false,
-        message: "Data transaksi ini bukan milik anda!",
+        message: "Data transaksi ini bukan milik anda",
         data: null,
       });
     }
@@ -500,10 +500,10 @@ const cancelTransactions = async (req, res, next) => {
 
       await prisma.notifications.create({
         data: {
-          title: "Transaksi berhasil dibatalkan!",
+          title: "Transaksi Berhasil Dibatalkan",
           description: `Anda berhasil membatalkan transaksi [${updated.booking_code}], Sampai jumpa lagi!`,
           user_id: req.user.user_id,
-          status: "unread",
+          status: "Belum dibaca",
         },
       });
 
@@ -513,14 +513,14 @@ const cancelTransactions = async (req, res, next) => {
     if (!result) {
       return res.status(400).json({
         status: false,
-        message: "Data transaksi gagal untuk dibatalkan!",
+        message: "Data transaksi gagal untuk dibatalkan",
         data: null,
       });
     }
 
     res.status(200).json({
       status: false,
-      message: "Data transaksi berhasil dibatalkan!",
+      message: "Data transaksi berhasil dibatalkan",
       data: null,
     });
   } catch (err) {

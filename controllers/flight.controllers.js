@@ -73,7 +73,7 @@ module.exports = {
       if (sort === null) {
         return res.status(400).json({
           status: false,
-          message: "Wrong sort values",
+          message: "Parameter sort tidak valid",
           data: null,
         });
       }
@@ -93,7 +93,7 @@ module.exports = {
       if (airports === null) {
         return res.status(400).json({
           status: false,
-          message: "Wrong departure/arrival airport code!",
+          message: "Kode bandara keberangkatan/kedatangan salah",
           data: null,
         });
       }
