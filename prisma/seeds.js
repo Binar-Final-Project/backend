@@ -70,10 +70,16 @@ async function seedAirports(){
     })
 }
 
-const schedule = require('./data/scheduleBased.json')
+const schedule = require('./data/schedules.json')
 async function seedSchedules(){
     await prisma.flights.createMany({
         data: schedule
+    })
+
+    await prisma.lastUpdate.create({
+        data: {
+            last_update: new Date()
+        }
     })
 }
 
