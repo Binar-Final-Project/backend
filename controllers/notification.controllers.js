@@ -19,7 +19,7 @@ getNotification = async (req, res, next) => {
     if (notifications.length === 0) {
       return res.status(400).json({
         status: false,
-        message: "Data not found",
+        message: "Data tidak ditemukan",
         data: null,
       });
     }
@@ -45,7 +45,7 @@ getNotification = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: "Internal Server Error",
+      message: "Terjadi Kesalahan pada Internal Server",
       data: null,
     });
     next(error);
@@ -61,7 +61,7 @@ updateNotification = async (req,res,next) => {
     if(isRead.status === 'read'){
       return res.status(200).json({
         status: true,
-        message: 'Notification has been read'
+        message: 'Notifikasi sudah dibaca'
       })
     }
 
@@ -75,14 +75,14 @@ updateNotification = async (req,res,next) => {
     if(!result) {
       return res.status(400).json({
         status: false,
-        message: 'Notification not found',
+        message: 'Notifikasi tidak ditemukan',
         data: null
       })
     }
 
     res.status(200).json({
       status: true,
-      message: 'Updated!',
+      message: 'Berhasil diperbarui',
       data: {notification_status: result.status}
     })
   } catch (err) {
@@ -101,7 +101,7 @@ markAll = async (req,res,next) => {
     if(!notifications){
       return res.status(400).json({
         status: true,
-        message: 'Notifications not found',
+        message: 'Notifikasi tidak ditemukan',
         data: null
       })
     }
@@ -117,7 +117,7 @@ markAll = async (req,res,next) => {
 
     res.status(200).json({
       status: true,
-      message: 'Marked all as read!',
+      message: 'Semua notifikasi sudah dibaca',
       data: null
     })
   } catch (err) {
