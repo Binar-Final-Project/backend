@@ -23,7 +23,7 @@ const register = async (req, res, next) => {
         if(!name || !password || !email || !phone_number){
             return res.status(400).json({
                 status: false,
-                message: 'All fields are required!',
+                message: 'Semua kolom harus diisi',
             });
         }
         const hashedPassword = crypto.SHA256(password).toString();
@@ -38,8 +38,8 @@ const register = async (req, res, next) => {
                 phone_number: phone_number,
                 notifications: {
                     create: {
-                        title: 'Registration Success',
-                        description: 'Congratulations, your account has been successfully created!',
+                        title: 'Pendaftaran Berhasil',
+                        description: 'Selamat, akun Anda telah berhasil dibuat',
                         status: 'unread'
                     }
                 }
@@ -53,7 +53,7 @@ const register = async (req, res, next) => {
         delete users.updated_at
         res.status(200).json({
             status: true,
-            message: 'User registered!',
+            message: 'Pengguna berhasil didaftarkan',
             data: users
         });
     } catch (error) {
@@ -61,7 +61,7 @@ const register = async (req, res, next) => {
         if (error.code === 'P2002') {
             return res.status(400).json({
                 status: false,
-                message: 'Email or phone number already exists',
+                message: 'Email atau nomor telepon sudah ada',
             });
         }
 
@@ -81,13 +81,13 @@ const verify = async (req, res, next) => {
         if (!users) {
             return res.status(400).json({
                 status: false,
-                message: 'User not found'
+                message: 'Pengguna tidak ditemukan'
             });
         }
          if (users.is_verified == true) {
             return res.status(200).json({
                 status: true,
-                message: 'User verified'
+                message: 'Pengguna sudah terverifikasi'
              });
         }
 
@@ -96,7 +96,7 @@ const verify = async (req, res, next) => {
         if (decryptedOtp !== otp_number || decryptedOtp !== otp_number.toString()) {
             return res.status(400).json({
                 status: false,
-                message: 'Invalid OTP'
+                message: 'OTP tidak valid'
             });
         }
 
@@ -109,8 +109,8 @@ const verify = async (req, res, next) => {
                 otp_number:null,
                 notifications: {
                     create: {
-                        title: 'Verification Success',
-                        description: 'Your account has successfully verified!',
+                        title: 'Verifikasi Berhasil',
+                        description: 'Akun Anda telah berhasil diverifikasi',
                         status: 'unread'
                     }
                 }
@@ -119,7 +119,7 @@ const verify = async (req, res, next) => {
 
         res.status(200).json({
             status: true,
-            message: 'User verified!',
+            message: 'Pengguna berhasil diverifikasi',
             data: {
                 is_verified: result.is_verified
             }
@@ -135,7 +135,7 @@ const login = async (req, res, next) => {
         if(!password || !email ){
             return res.status(400).json({
                 status: false,
-                message: 'All fields are required!',
+                message: 'Semua kolom harus diisi',
             });
         }
         
@@ -148,7 +148,7 @@ const login = async (req, res, next) => {
         if (!users) {
             return res.status(400).json({
                 status: false,
-                message: 'User not found'
+                message: 'Pengguna tidak ditemukan'
             });
         }
 
@@ -157,7 +157,7 @@ const login = async (req, res, next) => {
         if (users.password !== hashedPassword) {
             return res.status(400).json({
                 status: false,
-                message: 'Invalid password'
+                message: 'Password salah'
             });
         }
 
@@ -167,7 +167,7 @@ const login = async (req, res, next) => {
 
         res.status(200).json({
             status: true,
-            message: 'User logged in!',
+            message: 'Pengguna berhasil login',
             data: {
                 token
             }
@@ -185,7 +185,7 @@ const forgotPassword = async (req, res, next) => {
         if(!email){
             return res.status(400).json({
                 status: false,
-                message: 'Email not sent',
+                message: 'Email harus diisi dengan benar',
             });
         }
         
@@ -198,7 +198,7 @@ const forgotPassword = async (req, res, next) => {
         if (!users || !users.is_verified) {
             return res.status(400).json({
                 status: false,
-                message: 'User not found or not verified'
+                message: 'Pengguna tidak ditemukan atau belum diverifikasi'
             });
         }
 
@@ -210,7 +210,7 @@ const forgotPassword = async (req, res, next) => {
         await sendMail(email, 'Reset Password', html);
         return res.status(200).json({
             status: true,
-            message: 'Reset password link sent to your email',
+            message: 'Link reset password telah dikirimkan ke email Anda',
             data: null
         });
     } catch (error) {
@@ -224,7 +224,7 @@ const changePassword = async (req, res, next) => {
         if(!password1 || !password2 || !token){
             return res.status(400).json({
                 status: false,
-                message: 'Password or token not sent',
+                message: 'Password dan token diperlukan',
             });
         }
         
@@ -236,7 +236,7 @@ const changePassword = async (req, res, next) => {
         if (data.length !== 2) {
             return res.status(400).json({
                 status: false,
-                message: 'Invalid token',
+                message: 'Token tidak valid',
                 data: null
             });
         }
@@ -244,7 +244,7 @@ const changePassword = async (req, res, next) => {
         if(!password1 || password1.length < 1){
             return res.status(400).json({
                 status: false,
-                message: 'Password must be at least 1 characters',
+                message: 'Password harus memiliki setidaknya 1 karakter',
                 data: null
             });
         }
@@ -252,7 +252,7 @@ const changePassword = async (req, res, next) => {
         if(password1 !== password2){
             return res.status(400).json({
                 status: false,
-                message: 'Password do not match',
+                message: 'Password tidak cocok',
                 data: null
             });
         }
@@ -269,7 +269,7 @@ const changePassword = async (req, res, next) => {
 
         res.status(200).json({
             status: true,
-            message: 'Password changed successfully',
+            message: 'Password berhasil diubah',
             data: null
         });
     }catch(error){
@@ -293,8 +293,8 @@ const updateProfile = async (req, res, next) => {
 
         await prisma.notifications.create({
             data: {
-                title: 'Profile Update successfully',
-                description: `update profile succesfully`,
+                title: 'Profil Berhasil Diperbarui',
+                description: `Semua perubahan pada profil Anda telah berhasil diperbarui`,
                 user_id: req.user.user_id,
                 status: 'unread'
             }
@@ -302,7 +302,7 @@ const updateProfile = async (req, res, next) => {
 
         res.status(200).json({
             status: true,
-            message: 'Profile updated successfully'
+            message: 'Profil berhasil diperbarui'
         });
     } catch (error) {
         next(error);
@@ -323,7 +323,7 @@ const updatePassword = async(req, res, next) =>{
         if (!users) {
             return res.status(400).json({
                 status: false,
-                message: 'User not found'
+                message: 'Pengguna tidak ditemukan'
             });
         }
 
@@ -332,7 +332,7 @@ const updatePassword = async(req, res, next) =>{
         if (users.password !== hashedOldPassword) {
             return res.status(400).json({
                 status: false,
-                message: 'Invalid old password'
+                message: 'Password lama tidak valid'
             });
         }
 
@@ -349,8 +349,8 @@ const updatePassword = async(req, res, next) =>{
 
         await prisma.notifications.create({
             data: {
-                title: 'Password Update successfully',
-                description: `update password succesfully`,
+                title: 'Password Berhasil Diperbarui',
+                description: `Password Anda telah berhasil diperbarui`,
                 user_id: req.user.user_id,
                 status: 'unread'
             }
@@ -358,7 +358,7 @@ const updatePassword = async(req, res, next) =>{
 
         res.status(200).json({
             status: true,
-            message: 'Password updated successfully'
+            message: 'Password berhasil diperbarui'
         });
 
     } catch (error) {
@@ -396,7 +396,7 @@ const deleteUser = async (req, res, next) => {
       const user = await prisma.users.findUnique({ where: { email } });
   
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
       }
   
       const userId = user.user_id;
@@ -462,7 +462,7 @@ const deleteUser = async (req, res, next) => {
   
       res
         .status(200)
-        .json({ message: 'User and related data deleted successfully' });
+        .json({ message: 'Pengguna dan data terkait berhasil dihapus' });
     } catch (error) {
       next(error);
     }
@@ -474,7 +474,7 @@ const resendOTP = async (req,res,next) => {
         if(!email){
             return res.status(400).json({
                 status: false,
-                message: 'Email not sent',
+                message: 'Email harus diisi dengan benar',
                 data: null
             })
         }
@@ -492,7 +492,7 @@ const resendOTP = async (req,res,next) => {
         if(!updated){
             return res.status(400).json({
                 status: false,
-                message: 'failed to updated',
+                message: 'Gagal memperbarui',
                 data: null
             })
         }
@@ -501,7 +501,7 @@ const resendOTP = async (req,res,next) => {
 
         return res.status(200).json({
             status: true,
-            message: 'OTP UPDATED!',
+            message: 'OTP berhasil diperbarui',
             data: null
         })
     } catch (err) {

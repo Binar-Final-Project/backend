@@ -144,6 +144,10 @@ model flights {
   departure_airport    airports  @relation("departure", fields: [departure_airport_id], references: [airport_id])
   arrival_airport_id   Int
   arrival_airport      airports  @relation("arrival", fields: [arrival_airport_id], references: [airport_id])
+
+  // Composite index definition
+  @@index([departure_airport_id, arrival_airport_id, flight_date, class], name: "idx_flight_search")
+  @@index([flight_date, departure_airport_id, arrival_airport_id, class, price], name: "idx_cheapest_flight_search")
 }
 
 //Lookup tables
@@ -177,4 +181,9 @@ model airplanes {
   airline_id Int
   airline    airlines  @relation(fields: [airline_id], references: [airline_id])
   flight     flights[]
+}
+
+model LastUpdate {
+  id          Int      @id @default(autoincrement())
+  last_update DateTime
 }

@@ -72,7 +72,7 @@ module.exports = {
       ) {
         res.status(400).json({
           status: false,
-          message: "All fields are required!",
+          message: "Semua kolom harus diisi",
           data: null,
         });
       }
@@ -151,8 +151,8 @@ module.exports = {
 
         await prisma.notifications.create({
           data: {
-            title: "Ticket created successfully",
-            description: `Please complete your payment [${ticket.transaction.booking_code}]`,
+            title: "Tiket Berhasil Dibuat",
+            description: `Pemesanan tiket Anda telah berhasil. Silakan lakukan pembayaran pada Kode Booking [${ticket.transaction.booking_code}] untuk menyelesaikan proses pembayaran`,
             user_id: req.user.user_id,
             status: "unread",
           },
@@ -206,9 +206,7 @@ module.exports = {
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
         default_departure_price: data.ticket.departure_flight.price,
-        default_return_price: data.ticket.arrival_flight.price,
         default_departure_baby_price: +data.ticket.departure_flight.price*0.1,
-        default_return_baby_price: +data.ticket.arrival_flight.price*0.1,
         total_adult: data.ticket.total_adult,
         total_children: data.ticket.total_children,
         total_baby: data.ticket.total_baby,
@@ -233,6 +231,8 @@ module.exports = {
       if (!data.ticket.arrival_flight) {
         returnData.return = null;
       } else {
+        returnData.default_return_baby_price = data.ticket.arrival_flight.price*0.1,
+        returnData.default_return_price= data.ticket.arrival_flight.price,
         returnData.return = {
           flight_date: data.ticket.arrival_flight.flight_date.split("T")[0],
           departure_time: data.ticket.arrival_flight.departure_time,
@@ -252,13 +252,13 @@ module.exports = {
 
       res.status(200).json({
         status: true,
-        message: "Ticket Successfully Created",
+        message: "Tiket Berhasil Dibuat",
         data: returnData,
       });
     } catch (err) {
       if (
-        err.message === "Orderer is failed to create/update" ||
-        err.message === "Ticket fail to create"
+        err.message === "Gagal membuat/memperbarui pesanan" ||
+        err.message === "Gagal membuat tiket"
       ) {
         return res.status(400).json({
           status: false,
