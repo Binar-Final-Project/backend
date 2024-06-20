@@ -8,7 +8,7 @@ const verifyToken = (req, res, next) => {
     const token = req.headers['authorization'];
     
     if (!token) {
-        return res.status(401).json({
+        return res.status(403).json({
             status: false,
             message: 'Unauthorized'
         });
@@ -17,7 +17,7 @@ const verifyToken = (req, res, next) => {
 
     jwt.verify(bearer, JWT_SECRET, async (err, data) => {
         if (err) {
-            return res.status(401).json({
+            return res.status(403).json({
                 status: false,
                 message: 'Unauthorized'
             });
@@ -32,7 +32,7 @@ const verifyToken = (req, res, next) => {
 
         const user = await prisma.users.findUnique({where: {user_id: data.user_id}})
         if(!user){
-            return res.status(401).json({
+            return res.status(403).json({
                 status: false,
                 message: 'Unauthorized'
             });

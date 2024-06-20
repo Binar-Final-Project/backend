@@ -524,12 +524,12 @@ const whoami = async (req, res, next) => {
 
 
 const googleOauth2= async (req, res) => {
-    const token = req.headers['authorization'];
+    const {access_token} = req.body;
     try {
         try {
             let data = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: {
-                    Authorization: token,
+                    Authorization: `Bearer ${access_token}`
                 },
             });
             data = data.data;
