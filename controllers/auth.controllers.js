@@ -40,7 +40,7 @@ const register = async (req, res, next) => {
                     create: {
                         title: 'Pendaftaran Berhasil',
                         description: 'Selamat, akun Anda telah berhasil dibuat',
-                        status: 'Belum dibaca'
+                        status: 'unread'
                     }
                 }
             }
@@ -111,7 +111,7 @@ const verify = async (req, res, next) => {
                     create: {
                         title: 'Verifikasi Berhasil',
                         description: 'Akun Anda telah berhasil diverifikasi',
-                        status: 'Belum dibaca'
+                        status: 'unread'
                     }
                 }
             }
@@ -296,7 +296,7 @@ const updateProfile = async (req, res, next) => {
                 title: 'Profil Berhasil Diperbarui',
                 description: `Semua perubahan pada profil Anda telah berhasil diperbarui`,
                 user_id: req.user.user_id,
-                status: 'Belum dibaca'
+                status: 'unread'
             }
         });
 
@@ -352,7 +352,7 @@ const updatePassword = async(req, res, next) =>{
                 title: 'Password Berhasil Diperbarui',
                 description: `Password Anda telah berhasil diperbarui`,
                 user_id: req.user.user_id,
-                status: 'Belum dibaca'
+                status: 'unread'
             }
         });
 
