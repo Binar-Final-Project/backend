@@ -182,14 +182,13 @@ const history = async (req, res, next) => {
 const processPayment = async (req, res, next) => {
   let {
     booking_code,
-    payment_method,
     card_number,
     card_holder_name,
     cvv,
     expiry_date,
   } = req.body;
 
-  if(!booking_code){
+  if (!booking_code) {
     return res.status(400).json({
       status: false,
       message: "Masukkan kode booking dengan benar",
@@ -197,44 +196,31 @@ const processPayment = async (req, res, next) => {
     });
   }
 
-  if (payment_method.toLowerCase() !== "va" || !payment_method) {
-    if (
-      !card_number ||
-      !card_holder_name ||
-      !cvv ||
-      !expiry_date
-    ) {
-      return res.status(400).json({
-        status: false,
-        message: "Semua data harus diisi dengan benar",
-        data: null,
-      });
-    }
-
-    const numberValidation = cardValidator.number(card_number);
-    console.log(numberValidation)
-    if (!numberValidation.isPotentiallyValid) {
-      return res.status(400).json({
-        status: false,
-        message: "Kartu anda tidak valid",
-      });
-    }
-
-    const expiryValidation = cardValidator.expirationDate(expiry_date);
-    if (!expiryValidation.isValid) {
-      return res.status(400).json({
-        status: false,
-        message: "Kartu anda sudah kadaluarsa",
-      });
-    }
-
-    payment_method = numberValidation.card.type
-  }else {
-    card_holder_name = null,
-    card_number = null,
-    cvv = null,
-    expiry_date = null
+  if (!card_number || !card_holder_name || !cvv || !expiry_date) {
+    return res.status(400).json({
+      status: false,
+      message: "Semua data harus diisi dengan benar",
+      data: null,
+    });
   }
+
+  const numberValidation = cardValidator.number(card_number);
+  if (!numberValidation.isPotentiallyValid) {
+    return res.status(400).json({
+      status: false,
+      message: "Kartu anda tidak valid",
+    });
+  }
+
+  const expiryValidation = cardValidator.expirationDate(expiry_date);
+  if (!expiryValidation.isValid) {
+    return res.status(400).json({
+      status: false,
+      message: "Kartu anda sudah kadaluarsa",
+    });
+  }
+
+  let payment_method = numberValidation.card.type;
 
   try {
     const transaction = await prisma.transactions.findUnique({
@@ -281,7 +267,7 @@ const processPayment = async (req, res, next) => {
       data: {
         title: "Pembayaran Berhasil",
         description: `Pembayaran Anda pada Kode Booking [${booking_code}] telah sukses`,
-        status: "Belum dibaca",
+        status: "unread",
         user_id: transaction.user_id,
       },
     });
@@ -442,14 +428,17 @@ const printTicket = async (req, res, next) => {
       }
 
       // Send initial response (e.g., processing started)
-      res.status(202).json({ message: "E-tiket sedang dikirimkan ke email Anda" });
+      res
+        .status(202)
+        .json({ message: "E-tiket sedang dikirimkan ke email Anda" });
 
       await prisma.notifications.create({
         data: {
           title: "E-ticket Anda Telah Terkirim!",
-          description: "E-ticket Anda sudah siap! Silakan periksa email Anda untuk melihat dan menyimpannya.",
+          description:
+            "E-ticket Anda sudah siap! Silakan periksa email Anda untuk melihat dan menyimpannya.",
           user_id: req.user.user_id,
-          status: "Belum dibaca",
+          status: "unread",
         },
       });
       // Handle PDF buffer asynchronously (e.g., save to disk)
@@ -503,7 +492,7 @@ const cancelTransactions = async (req, res, next) => {
           title: "Transaksi Berhasil Dibatalkan",
           description: `Anda berhasil membatalkan transaksi [${updated.booking_code}], Sampai jumpa lagi!`,
           user_id: req.user.user_id,
-          status: "Belum dibaca",
+          status: "unread",
         },
       });
 

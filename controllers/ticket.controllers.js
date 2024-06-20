@@ -154,7 +154,7 @@ module.exports = {
             title: "Tiket Berhasil Dibuat",
             description: `Pemesanan tiket Anda telah berhasil. Silakan lakukan pembayaran pada Kode Booking [${ticket.transaction.booking_code}] untuk menyelesaikan proses pembayaran`,
             user_id: req.user.user_id,
-            status: "Belum dibaca",
+            status: "unread",
           },
         });
 
