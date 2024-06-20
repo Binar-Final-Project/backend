@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 const crypto = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const { sendMail, getHTML } = require('../libs/mailer');
+const axios = require('axios');
 
 const { JWT_SECRET, TOKEN_SECRET, FORGOT_PASSWORD_URL, FE_URL } = process.env;
 
@@ -521,11 +522,46 @@ const whoami = async (req, res, next) => {
     }
 }
 
-const googleOauth2= (req, res) => {
-    let token = jwt.sign({...req.user}, JWT_SECRET, { expiresIn: '1h' });
 
-    res.cookie('token', token, { httpOnly: true });
-    return res.redirect(FE_URL); // redirect to client
+const googleOauth2= async (req, res) => {
+    const token = req.headers['authorization'];
+    try {
+        try {
+            let data = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: {
+                    Authorization: token,
+                },
+            });
+            data = data.data;
+            
+            const { email, name } = data;
+            let user = await prisma.users.upsert({
+                where: { email: email },
+                update: { is_google: true },
+                create: {
+                    name: name,
+                    is_verified: true,
+                    email: email,
+                    is_google: true,
+                }
+            });
+
+            const tokenJWT = jwt.sign({...user}, JWT_SECRET, { expiresIn: '1h' });
+
+            return res.status(200).json({
+                status: true,
+                message: 'Login berhasil',
+                tokenJWT : tokenJWT,
+                data: user
+            });
+
+        } catch (error) {
+            throw new Error('Failed to fetch user info');
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
 }
 
 module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteUser, resendOTP, googleOauth2};
