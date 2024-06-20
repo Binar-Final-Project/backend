@@ -527,12 +527,11 @@ const googleOauth2= async (req, res) => {
     const {access_token} = req.body;
     try {
         try {
-            let data = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            let {data} = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: {
                     Authorization: `Bearer ${access_token}`
                 },
             });
-            data = data.data;
             
             const { email, name } = data;
             let user = await prisma.users.upsert({
@@ -546,6 +545,8 @@ const googleOauth2= async (req, res) => {
                 }
             });
 
+            delete user.otp_number
+            delete user.password
             const tokenJWT = jwt.sign({...user}, JWT_SECRET, { expiresIn: '1h' });
 
             return res.status(200).json({
@@ -559,7 +560,7 @@ const googleOauth2= async (req, res) => {
             throw new Error('Failed to fetch user info');
         }
     } catch (error) {
-        console.log(error);
+        throw new Error ('Something was wrong, please wait a moment'); 
     }
 
 }
