@@ -1066,6 +1066,87 @@
         }
       }
     },
+    "/api/v1/flights/cheapest": {
+      "get": {
+        "tags": ["Flights"],
+        "description": "Cheapest Ticket Searching API",
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/CheapestFlight"
+                          },
+                          {
+                            "$ref": "#/components/schemas/CheapestFlight"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Data not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tickets": {
       "post": {
         "tags": ["Tickets"],
@@ -1465,7 +1546,7 @@
                       "properties": {
                         "notification_status": {
                           "example": "read"
-                        } 
+                        }
                       }
                     }
                   }
@@ -2252,6 +2333,69 @@
           "data": {
             "type": "integer",
             "example": null
+          }
+        }
+      },
+      "CheapestFlight": {
+        "type": "object",
+        "properties": {
+          "flight_id": {
+            "example": 2833
+          },
+          "flight_number": {
+            "example": "QG-432"
+          },
+          "flight_date": {
+            "example": "2024-05-19"
+          },
+          "departure_time": {
+            "example": "14:10"
+          },
+          "arrival_time": {
+            "example": "15:45"
+          },
+          "class": {
+            "example": "ECONOMY"
+          },
+          "price": {
+            "example": "12160854"
+          },
+          "airplane": {
+            "example": "Airbus A320"
+          },
+          "airline": {
+            "example": "Citilink"
+          },
+          "airline_icon": {
+            "example": "https://ik.imagekit.io/tvlk/image/imageResource/2015/12/17/1450350561012-6584b693edd67d75cfc25ecff41c5704.png?tr=q-75"
+          },
+          "departure": {
+            "type": "object",
+            "properties": {
+              "airport_name": {
+                "example": "Soekarno Hatta"
+              },
+              "airport_city": {
+                "example": "Jakarta"
+              },
+              "airport_code": {
+                "example": "CGK"
+              }
+            }
+          },
+          "arrival": {
+            "type": "object",
+            "properties": {
+              "airport_name": {
+                "example": "Hang Nadim"
+              },
+              "airport_city": {
+                "example": "Batam"
+              },
+              "airport_code": {
+                "example": "BTH"
+              }
+            }
           }
         }
       },
