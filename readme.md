@@ -30,22 +30,3 @@ npx prisma db seed
 ```bash
 npm run dev
 ```
-
-#### 6. cookie
-
-```bash
-npm install cookie-parser
-```
-\
-#### 7. passport
-
-```bash
-npm install passport
-```
-
-#### 8. passport google
-
-```bash
-npm install passport-google-oauth20
-```
-flight_id = 

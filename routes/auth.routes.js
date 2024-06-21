@@ -4,7 +4,7 @@ const { verifyToken } = require('../libs/middleware')
 
 Router.post('/register', register)
 Router.post('/verification-otp', verify)
-Router.post('/login/google', googleOauth2);
+Router.post('/google', googleOauth2);
 Router.post('/login', login)
 Router.post('/sent-forgot-password', forgotPassword)
 Router.post('/reset-password', changePassword)
