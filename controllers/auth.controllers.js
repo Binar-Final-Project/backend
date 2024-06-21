@@ -3,8 +3,9 @@ const prisma = new PrismaClient();
 const crypto = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const { sendMail, getHTML } = require('../libs/mailer');
+const axios = require('axios');
 
-const { JWT_SECRET, TOKEN_SECRET, FORGOT_PASSWORD_URL } = process.env;
+const { JWT_SECRET, TOKEN_SECRET, FORGOT_PASSWORD_URL, FE_URL } = process.env;
 
 const generateOTP = () => {
     const otp_number= Math.floor(100000 + Math.random() * 900000);
@@ -521,4 +522,47 @@ const whoami = async (req, res, next) => {
     }
 }
 
-module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteUser, resendOTP};
+
+const googleOauth2= async (req, res) => {
+    const {access_token} = req.body;
+    try {
+        try {
+            let {data} = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: {
+                    Authorization: `Bearer ${access_token}`
+                },
+            });
+            
+            const { email, name } = data;
+            let user = await prisma.users.upsert({
+                where: { email: email },
+                update: { is_google: true },
+                create: {
+                    name: name,
+                    is_verified: true,
+                    email: email,
+                    is_google: true,
+                }
+            });
+
+            delete user.otp_number
+            delete user.password
+            const tokenJWT = jwt.sign({...user}, JWT_SECRET, { expiresIn: '1h' });
+
+            return res.status(200).json({
+                status: true,
+                message: 'Login berhasil',
+                tokenJWT : tokenJWT,
+                data: user
+            });
+
+        } catch (error) {
+            throw new Error('Failed to fetch user info');
+        }
+    } catch (error) {
+        throw new Error ('Something was wrong, please wait a moment'); 
+    }
+
+}
+
+module.exports = { whoami, register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, deleteUser, resendOTP, googleOauth2};

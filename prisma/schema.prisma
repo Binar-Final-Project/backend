@@ -21,16 +21,17 @@ enum transaction_status {
 }
 
 model users {
-  user_id      Int      @id @default(autoincrement())
+  user_id      Int     @id @default(autoincrement())
   name         String?
-  email        String   @unique
-  phone_number String?  @unique
-  password     String?
-  otp_number   String?
-  is_verified  Boolean  @default(false)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-  google_id    String?
+  email        String  @unique
+  phone_number String? @unique
+
+  password    String?
+  otp_number  String?
+  is_verified Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  is_google   Boolean? @default(false)
 
   //relationship
   notifications notifications[]
