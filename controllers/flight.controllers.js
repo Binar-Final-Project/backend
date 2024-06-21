@@ -252,6 +252,7 @@ module.exports = {
           al.airline_id,
           da.code,
           aa.code
+        LIMIT 1000
       `;
 
       if(!cheapestFlightsToday){
