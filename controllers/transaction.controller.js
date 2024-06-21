@@ -103,6 +103,15 @@ const history = async (req, res, next) => {
     const dataReturn = transactions.map((t) => {
       const tr = {};
       tr.flights = [t.ticket.departure_flight.flight_id];
+      tr.transaction_date = new Date(t.created_at).toLocaleString("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: "Asia/Jakarta",
+      })
       tr.transaction_id = t.transaction_id;
       tr.transaction_date = new Date(t.created_at).toLocaleString("en-US", {
         day: "2-digit",
