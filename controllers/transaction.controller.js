@@ -66,11 +66,21 @@ const history = async (req, res, next) => {
     }
 
     if (req.query.lt && req.query.gte) {
+      let lt, gte;
+      if(req.query.lt === req.query.gte){
+        lt = new Date(req.query.lt)
+        lt = new Date(lt.setDate(lt.getDate() + 1))
+
+        gte = new Date(req.query.gte)
+      }
+
+      console.log(lt)
+      console.log(gte)
       condition.where = {
         ...condition.where,
         created_at: {
-          lt: new Date(req.query.lt),
-          gte: new Date(req.query.gte),
+          lt: lt,
+          gte: gte,
         },
       };
     } else if (req.query.lt) {
@@ -112,7 +122,7 @@ const history = async (req, res, next) => {
       tr.cvv = t.cvv;
       tr.expiry_date = t.expiry_date;
       tr.booking_code = t.booking_code;
-      tr.status = t.status;
+      tr.status = t.status === "BELUM_DIBAYAR" ? "BELUM DIBAYAR" : t.status;
       tr.total_adult = t.ticket.total_adult;
       tr.total_children = t.ticket.total_children;
       tr.total_baby = t.ticket.total_baby;
@@ -244,7 +254,7 @@ const processPayment = async (req, res, next) => {
       });
     }
 
-    if (transaction.status === transaction_status.ISSUED) {
+    if (transaction.status === transaction_status.BERHASIL) {
       return res.status(400).json({
         status: false,
         message: "Transaksi sudah dibayar",
@@ -252,7 +262,7 @@ const processPayment = async (req, res, next) => {
       });
     }
 
-    if (transaction.status === transaction_status.CANCELLED) {
+    if (transaction.status === transaction_status.BATAL) {
       return res.status(400).json({
         status: false,
         message: "Transaksi sudah dibatalkan sebelumnya",
@@ -263,7 +273,7 @@ const processPayment = async (req, res, next) => {
     const updatedTransaction = await prisma.transactions.update({
       where: { booking_code },
       data: {
-        status: "ISSUED",
+        status: transaction_status.BERHASIL,
         payment_method,
         card_number,
         card_holder_name,
@@ -488,7 +498,7 @@ const cancelTransactions = async (req, res, next) => {
       const updated = await prisma.transactions.update({
         where: { booking_code: code },
         data: {
-          status: transaction_status.CANCELLED,
+          status: transaction_status.BATAL,
         },
       });
 
