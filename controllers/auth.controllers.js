@@ -153,6 +153,13 @@ const login = async (req, res, next) => {
             });
         }
 
+        if(!users.password || users.is_google === true || users.password === null){
+            return res.status(400).json({
+                status: false,
+                message: 'Silahkan login menggunakan google'
+            })
+        }
+
         const hashedPassword = crypto.SHA256(password).toString();
 
         if (users.password !== hashedPassword) {
