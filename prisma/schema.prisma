@@ -15,9 +15,9 @@ datasource db {
 
 //enumeration for transactions
 enum transaction_status {
-  UNPAID
-  CANCELLED
-  ISSUED
+  BELUM_DIBAYAR @map("BELUM DIBAYAR")
+  BATAL
+  BERHASIL @map("BERHASIL")
 }
 
 model users {
