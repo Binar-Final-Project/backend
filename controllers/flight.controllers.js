@@ -106,7 +106,7 @@ module.exports = {
             tickets t
             INNER JOIN transactions tr ON tr.ticket_id = t.ticket_id
           WHERE
-            tr.status = 'ISSUED'
+            tr.status = 'BERHASIL'
           GROUP BY
             t.departure_flight_id
         ),
