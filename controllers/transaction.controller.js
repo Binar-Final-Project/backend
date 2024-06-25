@@ -244,7 +244,7 @@ const processPayment = async (req, res, next) => {
       });
     }
 
-    if (transaction.status === transaction_status.ISSUED) {
+    if (transaction.status === transaction_status.BERHASIL) {
       return res.status(400).json({
         status: false,
         message: "Transaksi sudah dibayar",
@@ -252,7 +252,7 @@ const processPayment = async (req, res, next) => {
       });
     }
 
-    if (transaction.status === transaction_status.CANCELLED) {
+    if (transaction.status === transaction_status.BATAL) {
       return res.status(400).json({
         status: false,
         message: "Transaksi sudah dibatalkan sebelumnya",
@@ -354,7 +354,7 @@ const printTicket = async (req, res, next) => {
       });
     }
 
-    if (data.status !== transaction_status.ISSUED) {
+    if (data.status !== transaction_status.BERHASIL) {
       return res.status(400).json({
         status: false,
         message: "Anda belum membayar tiket ini",
@@ -488,7 +488,7 @@ const cancelTransactions = async (req, res, next) => {
       const updated = await prisma.transactions.update({
         where: { booking_code: code },
         data: {
-          status: transaction_status.CANCELLED,
+          status: transaction_status.BATAL,
         },
       });
 

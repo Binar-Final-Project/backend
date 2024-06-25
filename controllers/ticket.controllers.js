@@ -126,7 +126,7 @@ module.exports = {
             transaction: {
               create: {
                 total_price: price,
-                status: transaction_status.UNPAID,
+                status: transaction_status.BELUM_DIBAYAR,
                 booking_code: await generateBookingCode(),
                 tax: tax,
                 user: {
