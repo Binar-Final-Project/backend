@@ -474,7 +474,8 @@ const printTicket = async (req, res, next) => {
       console.log("Success");
     });
   } catch (err) {
-    next(err);
+    // next(err);
+    res.status(500).json(err)
   }
 };
 
