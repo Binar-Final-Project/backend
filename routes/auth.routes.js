@@ -1,5 +1,5 @@
 const Router = require('express').Router()
-const { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, resendOTP, whoami, deleteUser, googleOauth2 } = require('../controllers/auth.controllers')
+const { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, resendOTP, whoami, deleteUser, googleOauth2, newPassword } = require('../controllers/auth.controllers')
 const { verifyToken } = require('../libs/middleware')
 
 Router.post('/register', register)
@@ -9,6 +9,7 @@ Router.post('/login', login)
 Router.post('/sent-forgot-password', forgotPassword)
 Router.post('/reset-password', changePassword)
 Router.post('/resend-otp', resendOTP)
+Router.post('/new-password', verifyToken, newPassword)
 
 //private routes
 Router.post('/update-profile', verifyToken, updateProfile)
