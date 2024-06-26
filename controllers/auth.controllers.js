@@ -457,6 +457,8 @@ const getProfile = async (req, res, next) => {
       (users.password === "" && users.is_google === true)
     ) {
       isPasswordExist = false;
+    }else {
+        isPasswordExist = true
     }
 
     delete users.password
