@@ -452,7 +452,7 @@ const printTicket = async (req, res, next) => {
     generatePdf(htmlContent, async (error, pdfBuffer) => {
       if (error) {
         // Handle error
-        return res.status(500).json({ message: "Error saat membuat PDF" });
+        return res.status(500).json({ message: "Error saat membuat PDF", error });
       }
 
       // Send initial response (e.g., processing started)
