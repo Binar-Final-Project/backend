@@ -459,6 +459,8 @@ const getProfile = async (req, res, next) => {
       isPasswordExist = true;
     }
 
+    delete users.password
+
     res.status(200).json({
       status: true,
       data: { ...users, isPasswordExist },
