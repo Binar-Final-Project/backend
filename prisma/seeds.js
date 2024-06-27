@@ -71,9 +71,24 @@ async function seedAirports(){
 }
 
 const schedule = require('./data/schedules.json')
+const { addDays } = require('../libs/cron')
 async function seedSchedules(){
+
+    
+    const currentDate = new Date()
+    const oldestDate = new Date(schedule[0].flight_date)
+    console.log(schedule.length)
+
+    const gapDays = Math.floor((currentDate - oldestDate) / (1000 * 60 * 60 * 24))
+
+    let mappedSchedule = schedule.map(s => {
+        return {
+            ...s,
+            flight_date: addDays(s.flight_date, gapDays)
+        }
+    })
     await prisma.flights.createMany({
-        data: schedule
+        data: mappedSchedule
     })
 
     await prisma.lastUpdate.create({

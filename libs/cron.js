@@ -50,7 +50,7 @@ const updateFlights = async () => {
         const currentDate = new Date()
 
         //calculate weeks
-        const weeksToAdd = latestDate ? Math.floor((currentDate - latestDate) / (1000 * 60 * 60 * 24 * 7)) : 0
+        const weeksToAdd = latestDate ? Math.floor((currentDate - latestDate) / (1000 * 60 * 60 * 24)) : 0
 
         if (weeksToAdd > 0){
             //update date
@@ -74,4 +74,4 @@ const updateFlights = async () => {
     }
 }
 
-module.exports = {updateFlights}
+module.exports = {updateFlights, addDays}
