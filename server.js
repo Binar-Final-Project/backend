@@ -28,5 +28,5 @@ cron.schedule('0 0 * * 0', async () => {
   console.log('Cronjob sudah selesai')
 })
 
-const { PORT } = process.env || 3000;
+const { PORT } = process.env || 8080;
 app.listen(PORT, () => console.log("Server is listening on port", PORT));
