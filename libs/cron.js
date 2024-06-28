@@ -74,4 +74,4 @@ const updateFlights = async () => {
     }
 }
 
-module.exports = {updateFlights}
+module.exports = {updateFlights, addDays}
