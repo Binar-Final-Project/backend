@@ -7,10 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
-    },
-    {
-      "url": "https://express-production-3572.up.railway.app"
+      "url": "https://biflight-production.up.railway.app"
     }
   ],
   "tags": [
@@ -28,12 +25,17 @@
     },
     {
       "name": "Transactions"
+    },
+    {
+      "name": "Profiles"
     }
   ],
   "paths": {
     "/api/v1/users/register": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -140,7 +142,9 @@
     },
     "/api/v1/users/verification-otp": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -234,7 +238,9 @@
     },
     "/api/v1/users/login": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -328,9 +334,120 @@
         }
       }
     },
+    "/api/v1/users/google": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "access_token": {
+                    "example": "ya29.aksodjaocw"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "example": true
+                    },
+                    "message": {
+                      "example": "Login Berhasil"
+                    },
+                    "data": {
+                      "allOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                            },
+                            "user": {
+                              "type": "object",
+                              "properties": {
+                                "user_id": {
+                                  "example": 1
+                                },
+                                "name": {
+                                  "example": "Mirza"
+                                },
+                                "email": {
+                                  "example": "mirzahm14@gmail.com"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "oneOf": [
+                        {
+                          "example": "Email or password is invalid"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/BadRequestResponse"
+                    }
+                  ],
+                  "properties": {
+                    "message": {
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/sent-forgot-password": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -414,7 +531,9 @@
     },
     "/api/v1/users/reset-password": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -504,7 +623,9 @@
     },
     "/api/v1/users/resend-otp": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -588,7 +709,9 @@
     },
     "/api/v1/users/update-profile": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Profiles"
+        ],
         "description": "Update profile API",
         "security": [
           {
@@ -705,7 +828,9 @@
     },
     "/api/v1/users/update-password": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Profiles"
+        ],
         "description": "Update profile API",
         "security": [
           {
@@ -824,12 +949,15 @@
     },
     "/api/v1/users/profile": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Profiles"
+        ],
         "security": [
           {
             "bearerAuth": []
           }
         ],
+        "description": "Get a profile",
         "responses": {
           "200": {
             "description": "Successfully",
@@ -934,7 +1062,9 @@
     },
     "/api/v1/flights": {
       "post": {
-        "tags": ["Flights"],
+        "tags": [
+          "Flights"
+        ],
         "description": "Ticket Searching API",
         "parameters": [
           {
@@ -1068,7 +1198,9 @@
     },
     "/api/v1/flights/cheapest": {
       "get": {
-        "tags": ["Flights"],
+        "tags": [
+          "Flights"
+        ],
         "description": "Cheapest Ticket Searching API",
         "responses": {
           "200": {
@@ -1149,7 +1281,9 @@
     },
     "/api/v1/tickets": {
       "post": {
-        "tags": ["Tickets"],
+        "tags": [
+          "Tickets"
+        ],
         "description": "API ini dipake pas simpan data diri passengers",
         "security": [
           {
@@ -1302,7 +1436,9 @@
     },
     "/api/v1/notifications": {
       "get": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1411,7 +1547,9 @@
     },
     "/api/v1/notifications/mark-all": {
       "get": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1508,9 +1646,11 @@
         }
       }
     },
-    "/api/v1/notifications/:id": {
+    "/api/v1/notifications/{id}": {
       "put": {
-        "tags": ["Notifications"],
+        "tags": [
+          "Notifications"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1624,7 +1764,9 @@
     },
     "/api/v1/transactions/history": {
       "get": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1760,7 +1902,9 @@
     },
     "/api/v1/transactions/{code}": {
       "get": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1869,7 +2013,9 @@
     },
     "/api/v1/transactions/{booking_code}": {
       "put": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1981,7 +2127,9 @@
     },
     "/api/v1/transactions/pay": {
       "post": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []

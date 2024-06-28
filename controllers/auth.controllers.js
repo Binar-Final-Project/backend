@@ -562,6 +562,15 @@ const resendOTP = async (req, res, next) => {
       });
     }
 
+    const isExisted = await prisma.users.findUnique({where: {email}})
+    if(!isExisted){
+      return res.status(400).json({
+        status: false,
+        message: 'Tidak ada user yang menggunakan email ini!',
+        data: null
+      })
+    }
+
     const { otp_number, chipperOtp } = generateOTP();
     const updated = await prisma.users.update({
       data: {
