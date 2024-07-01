@@ -66,7 +66,9 @@ const history = async (req, res, next) => {
     }
 
     if (req.query.lt && req.query.gte) {
-      let lt, gte;
+      let lt = new Date(req.query.lt)
+      let gte = new Date(req.query.gte)
+
       if(req.query.lt === req.query.gte){
         lt = new Date(req.query.lt)
         lt = new Date(lt.setDate(lt.getDate() + 1))
@@ -74,8 +76,6 @@ const history = async (req, res, next) => {
         gte = new Date(req.query.gte)
       }
 
-      console.log(lt)
-      console.log(gte)
       condition.where = {
         ...condition.where,
         created_at: {
