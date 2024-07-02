@@ -11,6 +11,14 @@ function generateCode(length = 8) {
   return result;
 }
 
+function generateThreeDayFromNow(){
+  const today = new Date()
+  let nextThree = new Date(today.setDate(today.getDate() + 3))
+  nextThree = nextThree.toISOString().split('T')[0]
+
+  return nextThree
+}
+
 async function generateBookingCode() {
   let code;
   let isUnique = false;
@@ -132,6 +140,7 @@ module.exports = {
                 user: {
                   connect: { user_id: req.user.user_id },
                 },
+                expired_at: new Date(generateThreeDayFromNow())
               },
             },
             passengers: {
@@ -170,6 +179,7 @@ module.exports = {
           booking_code: true,
           total_price: true,
           tax: true,
+          expired_at: true,
           ticket: {
             include: {
               departure_flight: {
@@ -200,9 +210,11 @@ module.exports = {
         },
       });
 
+
       const returnData = {
         booking_code: data.booking_code,
         total_price: data.total_price,
+        expired_at: data.expired_at.toISOString().split('T')[0],
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
         default_departure_price: data.ticket.departure_flight.price,
