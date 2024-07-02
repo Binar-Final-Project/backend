@@ -17,7 +17,7 @@ datasource db {
 enum transaction_status {
   BELUM_DIBAYAR @map("BELUM DIBAYAR")
   BATAL
-  BERHASIL @map("BERHASIL")
+  BERHASIL      @map("BERHASIL")
 }
 
 model users {
@@ -64,12 +64,12 @@ model transactions {
   status           transaction_status
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
-
+  expired_at       DateTime
   //relationship
-  user_id   Int
-  user      users   @relation(fields: [user_id], references: [user_id])
-  ticket_id Int     @unique //1-1
-  ticket    tickets @relation(fields: [ticket_id], references: [ticket_id])
+  user_id          Int
+  user             users              @relation(fields: [user_id], references: [user_id])
+  ticket_id        Int                @unique //1-1
+  ticket           tickets            @relation(fields: [ticket_id], references: [ticket_id])
 }
 
 model tickets {
