@@ -11,12 +11,14 @@ function generateCode(length = 8) {
   return result;
 }
 
-function generateThreeDayFromNow(){
-  const today = new Date()
-  let nextThree = new Date(today.setDate(today.getDate() + 3))
-  nextThree = nextThree.toISOString().split('T')[0]
+function generateTwoHoursFromNow() {
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const wibHours = utcHours + 7; 
 
-  return nextThree
+  now.setUTCHours(wibHours + 2); 
+
+  return now;
 }
 
 async function generateBookingCode() {
@@ -140,7 +142,7 @@ module.exports = {
                 user: {
                   connect: { user_id: req.user.user_id },
                 },
-                expired_at: new Date(generateThreeDayFromNow())
+                expired_at: generateTwoHoursFromNow()
               },
             },
             passengers: {
@@ -214,7 +216,7 @@ module.exports = {
       const returnData = {
         booking_code: data.booking_code,
         total_price: data.total_price,
-        expired_at: data.expired_at.toISOString().split('T')[0],
+        expired_at: data.expired_at,
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
         default_departure_price: data.ticket.departure_flight.price,

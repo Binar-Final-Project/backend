@@ -85,31 +85,30 @@ const updateFlights = async () => {
 };
 
 const cancelTransaction = async () => {
-  const targetDate = new Date(); // The target date without the time component
-  targetDate.setHours(0, 0, 0, 0); // Set time to the start of the day
-
-  const nextDay = new Date(targetDate);
-  nextDay.setDate(nextDay.getDate() + 1); // Move to the next day
-
-  const existedTransactions = await prisma.transactions.findMany({
-    where: {
-      expired_at: {
-        gte: targetDate,
-        lt: nextDay,
+    const now = new Date();
+    const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+    const nowWIB = new Date(nowUTC.setHours(nowUTC.getHours() + 7)); // Convert to WIB
+  
+    const twoHoursAgoWIB = new Date(nowWIB);
+    twoHoursAgoWIB.setHours(twoHoursAgoWIB.getHours() - 2); // Set to two hours ago WIB
+  
+    const existedTransactions = await prisma.transactions.findMany({
+      where: {
+        expired_at: {
+          lte: twoHoursAgoWIB, // Less than or equal to two hours ago in WIB
+        },
+        status: transaction_status.BELUM_DIBAYAR,
       },
-    },
-  });
-
-  existedTransactions.forEach(async (t) => {
-    if (t.status === transaction_status.BELUM_DIBAYAR) {
+    });
+  
+    for (const t of existedTransactions) {
       await prisma.transactions.update({
         where: { transaction_id: t.transaction_id },
         data: { status: transaction_status.BATAL },
       });
-
-      console.log(`Transaction [${t.booking_code}] expired`);
+  
+      console.log(`Transaction [${t.booking_code}] expired and canceled`);
     }
-  });
-};
+  };
 
 module.exports = { updateFlights, addDays, cancelTransaction };
