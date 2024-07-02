@@ -121,7 +121,7 @@ const history = async (req, res, next) => {
       tr.card_holder_name = t.card_holder_name;
       tr.cvv = t.cvv;
       tr.expiry_date = t.expiry_date;
-      tr.expired_at = t.expired_at.toISOString().split('T')[0];
+      tr.expired_at = t.expired_at;
       tr.booking_code = t.booking_code;
       tr.status = t.status === "BELUM_DIBAYAR" ? "BELUM DIBAYAR" : t.status;
       tr.total_adult = t.ticket.total_adult;

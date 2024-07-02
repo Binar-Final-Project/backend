@@ -23,7 +23,7 @@ app.use("/api/v1", routes);
 //cron
 const {updateFlights, cancelTransaction} = require('./libs/cron')
 
-cron.schedule('59 23 * * *', async () => {
+cron.schedule('0 * * * *', async () => {
   console.log('Cancelling transactions due to expiries')
   await cancelTransaction()
   console.log('Cancelling transaction is done')
