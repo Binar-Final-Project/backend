@@ -10,7 +10,7 @@ app.set("view engine", "ejs");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://biflight.vercel.app"],
+    origin: ["http://localhost:5173", "https://biflight.vercel.app", "https://biflight.pro"],
     optionsSuccessStatus: 200,
   })
 );
