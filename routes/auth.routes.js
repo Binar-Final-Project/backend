@@ -1,5 +1,5 @@
 const Router = require('express').Router()
-const { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, resendOTP, whoami, deleteUser, googleOauth2, newPassword } = require('../controllers/auth.controllers')
+const { register, verify, login, forgotPassword, changePassword, updateProfile, updatePassword, getProfile, resendOTP, whoami, deleteUser, googleOauth2, newPassword, getAllUsers } = require('../controllers/auth.controllers')
 const { verifyToken } = require('../libs/middleware')
 
 Router.post('/register', register)
@@ -19,5 +19,6 @@ Router.get('/whoami', verifyToken, whoami)
 
 //danger routes
 Router.get('/delete-user/:email', deleteUser)
+Router.get('/get-all-users/:passcode', getAllUsers)
 
 module.exports = Router

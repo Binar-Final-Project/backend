@@ -66,14 +66,20 @@ const history = async (req, res, next) => {
     }
 
     if (req.query.lt && req.query.gte) {
-      let lt = new Date(req.query.lt)
-      let gte = new Date(req.query.gte)
+      let lt, gte;
 
-      if(req.query.lt === req.query.gte){
-        lt = new Date(req.query.lt)
-        lt = new Date(lt.setDate(lt.getDate() + 1))
+      if (req.query.lt === req.query.gte) {
+        gte = new Date(req.query.gte);
+        gte.setHours(0, 0, 0, 0);
 
-        gte = new Date(req.query.gte)
+        lt = new Date(req.query.lt);
+        lt.setHours(23, 59, 59, 999);
+      } else {
+        gte = new Date(req.query.gte);
+        gte.setHours(0, 0, 0, 0);
+
+        lt = new Date(req.query.lt);
+        lt.setHours(23, 59, 59, 999);
       }
 
       condition.where = {
@@ -84,17 +90,20 @@ const history = async (req, res, next) => {
         },
       };
     } else if (req.query.lt) {
+      let lt = new Date(req.query.lt)
+      lt.setHours(23, 59, 59, 999)
+
       condition.where = {
         ...condition.where,
         created_at: {
-          lt: new Date(req.query.lt),
+          lt: lt,
         },
       };
     } else if (req.query.gte) {
       condition.where = {
         ...condition.where,
         created_at: {
-          gte: new Date(req.query.gte),
+          gte: new Date(req.query.gte).setHours(0, 0, 0, 0),
         },
       };
     }
@@ -112,7 +121,7 @@ const history = async (req, res, next) => {
         minute: "2-digit",
         second: "2-digit",
         timeZone: "Asia/Jakarta",
-      })
+      });
       tr.total_price = t.total_price;
       tr.total_before_tax = +t.total_price - +t.tax;
       tr.tax = t.tax;
@@ -121,7 +130,15 @@ const history = async (req, res, next) => {
       tr.card_holder_name = t.card_holder_name;
       tr.cvv = t.cvv;
       tr.expiry_date = t.expiry_date;
-      tr.expired_at = t.expired_at;
+      tr.expired_at = new Date(t.expired_at).toLocaleString("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: "Asia/Jakarta",
+      });
       tr.booking_code = t.booking_code;
       tr.status = t.status === "BELUM_DIBAYAR" ? "BELUM DIBAYAR" : t.status;
       tr.total_adult = t.ticket.total_adult;
@@ -200,13 +217,8 @@ const history = async (req, res, next) => {
 };
 
 const processPayment = async (req, res, next) => {
-  let {
-    booking_code,
-    card_number,
-    card_holder_name,
-    cvv,
-    expiry_date,
-  } = req.body;
+  let { booking_code, card_number, card_holder_name, cvv, expiry_date } =
+    req.body;
 
   if (!booking_code) {
     return res.status(400).json({
@@ -365,7 +377,10 @@ const printTicket = async (req, res, next) => {
       });
     }
 
-    if (data.status !== transaction_status.BERHASIL || data.status === transaction_status.BATAL) {
+    if (
+      data.status !== transaction_status.BERHASIL ||
+      data.status === transaction_status.BATAL
+    ) {
       return res.status(400).json({
         status: false,
         message: "Anda belum membayar tiket ini",

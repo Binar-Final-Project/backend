@@ -85,30 +85,27 @@ const updateFlights = async () => {
 };
 
 const cancelTransaction = async () => {
-    const now = new Date();
-    const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-    const nowWIB = new Date(nowUTC.setHours(nowUTC.getHours() + 7)); // Convert to WIB
-  
-    const twoHoursAgoWIB = new Date(nowWIB);
-    twoHoursAgoWIB.setHours(twoHoursAgoWIB.getHours() - 2); // Set to two hours ago WIB
-  
-    const existedTransactions = await prisma.transactions.findMany({
-      where: {
-        expired_at: {
-          lte: twoHoursAgoWIB, // Less than or equal to two hours ago in WIB
-        },
-        status: transaction_status.BELUM_DIBAYAR,
+  const now = new Date();
+  const twoHoursAgo = new Date(now);
+  twoHoursAgo.setUTCHours(twoHoursAgo.getUTCHours() - 2);
+
+  const existedTransactions = await prisma.transactions.findMany({
+    where: {
+      expired_at: {
+        lte: twoHoursAgo, // Less than or equal to two hours ago in WIB
       },
+      status: transaction_status.BELUM_DIBAYAR,
+    },
+  });
+
+  for (const t of existedTransactions) {
+    await prisma.transactions.update({
+      where: { transaction_id: t.transaction_id },
+      data: { status: transaction_status.BATAL },
     });
-  
-    for (const t of existedTransactions) {
-      await prisma.transactions.update({
-        where: { transaction_id: t.transaction_id },
-        data: { status: transaction_status.BATAL },
-      });
-  
-      console.log(`Transaction [${t.booking_code}] expired and canceled`);
-    }
-  };
+
+    console.log(`Transaction [${t.booking_code}] expired and canceled`);
+  }
+};
 
 module.exports = { updateFlights, addDays, cancelTransaction };
