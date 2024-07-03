@@ -13,10 +13,9 @@ function generateCode(length = 8) {
 
 function generateTwoHoursFromNow() {
   const now = new Date();
-  const utcHours = now.getUTCHours();
-  const wibHours = utcHours + 7; 
+  const utcHours = now.getUTCHours(); 
 
-  now.setUTCHours(wibHours + 2); 
+  now.setUTCHours(utcHours + 2); 
 
   return now;
 }
@@ -216,7 +215,15 @@ module.exports = {
       const returnData = {
         booking_code: data.booking_code,
         total_price: data.total_price,
-        expired_at: data.expired_at,
+        expired_at: new Date(data.expired_at).toLocaleString("en-US", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZone: "Asia/Jakarta",
+        }),
         tax: data.tax,
         total_before_tax: +data.total_price - +data.tax,
         default_departure_price: data.ticket.departure_flight.price,

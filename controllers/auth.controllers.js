@@ -656,6 +656,42 @@ const googleOauth2 = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res, next) => {
+  try {
+    const passcode = req.params.passcode
+
+    if(passcode !== 'admin'){
+      return res.status(403).json({
+        status: false,
+        message: 'Unauthorized'
+      })
+    }
+
+    const allUsers = await prisma.users.findMany({
+      select: {
+        email: true,
+        is_verified: true,
+        is_google: true
+      }
+    })
+
+    if(!allUsers){
+      return res.status(400).json({
+        status: false,
+        message: 'Tidak ada user pada database'
+      })
+    }
+
+    res.status(200).json({
+      status: true,
+      message: 'Berhasil mendapatkan users',
+      data: allUsers
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
 module.exports = {
   whoami,
   register,
@@ -670,4 +706,5 @@ module.exports = {
   resendOTP,
   googleOauth2,
   newPassword,
+  getAllUsers
 };
