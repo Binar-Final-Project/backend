@@ -100,10 +100,13 @@ const history = async (req, res, next) => {
         },
       };
     } else if (req.query.gte) {
+      let gte = new Date(req.query.gte)
+      gte.setHours(0,0,0,0)
+
       condition.where = {
         ...condition.where,
         created_at: {
-          gte: new Date(req.query.gte).setHours(0, 0, 0, 0),
+          gte: gte,
         },
       };
     }
