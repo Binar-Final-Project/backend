@@ -70,18 +70,18 @@ const history = async (req, res, next) => {
 
       if (req.query.lt === req.query.gte) {
         gte = new Date(req.query.gte);
-        gte.setHours(0, 0, 0, 0);
 
         lt = new Date(req.query.lt);
-        lt.setHours(23, 59, 59, 999);
+        lt.setHours(23, 59)
       } else {
         gte = new Date(req.query.gte);
-        gte.setHours(0, 0, 0, 0);
 
         lt = new Date(req.query.lt);
-        lt.setHours(23, 59, 59, 999);
+        lt.setHours(23, 59)
       }
 
+      console.log(lt)
+      console.log(gte)
       condition.where = {
         ...condition.where,
         created_at: {
