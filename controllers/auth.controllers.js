@@ -660,7 +660,7 @@ const getAllUsers = async (req, res, next) => {
   try {
     const passcode = req.params.passcode
 
-    if(passcode !== 'admin'){
+    if(passcode !== process.env.PASSCODE){
       return res.status(403).json({
         status: false,
         message: 'Unauthorized'
